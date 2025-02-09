@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playlist For You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="theme-selector">
+        <button class="theme-btn active" id="theme-sage" data-theme="sage"></button>
+        <button class="theme-btn" id="theme-daisy" data-theme="daisy"></button>
+        <button class="theme-btn" id="theme-purple" data-theme="purple"></button>
+        <button class="theme-btn" id="theme-ocean" data-theme="ocean"></button>
+    </div>
+    
+    <div class="extra-controls">
+        <button id="favorite" class="control-btn favorite-btn">♡</button>
+        <button id="fullscreen-btn" class="control-btn">⛶</button>
+    </div>
+    
+    <div class="welcome-screen">
+        <div class="welcome-content">
+            <h1 class="welcome-title"></h1>
+            <p class="welcome-text"></p>
+            <button class="open-playlist-btn">Open Playlist</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Playlist</h1>
+            <p></p>
+        </div>
+        
+        <div class="cards" id="cards-container"></div>
+        <div id="youtube-player"></div>
+        <div id="song-info-container"></div>
+
+        <div class="controls">
+            <button id="prev">◁</button>
+            <button id="pause">▶</button>
+            <button id="next">▷</button>
+        </div>
+    </div>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="vapp.js"></script>
+</body>
+</html>
