@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <script>
+        function handleRouting() {
+            const path = window.location.pathname;
+            const baseUrl = window.location.origin;
+            
+            // If we're at the root or index, stay there
+            if (path === '/' || path === '/index.html') {
+                return;
+            }
+            const customUrl = path.substring(1);
+            
+            if (customUrl) {
+                sessionStorage.setItem('customUrl', customUrl);
+                window.location.href = `${baseUrl}/viewer.html`;
+            } else {
+                window.location.href = `${baseUrl}/index.html`;
+            }
+        }
+        window.onload = handleRouting;
+    </script>
+</head>
+<body>
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+        <div style="text-align: center;">
+            <h2>Loading your playlist...</h2>
+            <p>Please wait while we redirect you...</p>
+        </div>
+    </div>
+</body>
+</html>
