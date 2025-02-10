@@ -4,33 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage-bg: #E8EAE3;
+            --sage-accent: #8C9E82;
+            --sage-text: #3C4A3B;
+            --sage-button: #A1B5A0;
+            --sage-button-hover: #7F9680;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--sage-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            line-height: 1.6;
+            color: var(--sage-text);
+        }
+
+        .loading-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+        }
+
+        .loading-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--sage-accent);
+            margin-bottom: 20px;
+        }
+
+        .loading-subtitle {
+            font-size: 1rem;
+            color: var(--sage-text);
+            opacity: 0.8;
+        }
+    </style>
     <script>
         function handleRouting() {
             const path = window.location.pathname;
             const baseUrl = window.location.origin;
-            
-            // If we're at the root or index, stay there
             if (path === '/' || path === '/index.html') {
                 return;
             }
             const customUrl = path.substring(1);
             
             if (customUrl) {
-                sessionStorage.setItem('customUrl', customUrl);
-                window.location.href = `${baseUrl}/viewer.html`;
+                fetch(customUrl)
+                    .then(response => {
+                        if (response.ok) {
+                            sessionStorage.setItem('customUrl', customUrl);
+                            window.location.href = `${baseUrl}/viewer.html`;
+                        } else {
+                            window.location.href = `${baseUrl}/notfound.html`;
+                        }
+                    })
+                    .catch(() => {
+                        window.location.href = `${baseUrl}/notfound.html`;
+                    });
             } else {
-                window.location.href = `${baseUrl}/index.html`;
+                window.location.href = `${baseUrl}/notfound.html`;
             }
         }
         window.onload = handleRouting;
     </script>
 </head>
 <body>
-    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
-        <div style="text-align: center;">
-            <h2>Loading your playlist...</h2>
-            <p>Please wait while we redirect you...</p>
-        </div>
+    <div class="loading-container">
+        <h1 class="loading-title">Loading Playlist</h1>
+        <p class="loading-subtitle">Please wait while we find your musical journey...</p>
     </div>
 </body>
 </html>
