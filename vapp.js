@@ -284,8 +284,36 @@
             player.loadVideoById(videoId);
             updateSongInfo();
         }
+        function isInstagramBrowser() {
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            return userAgent.indexOf('Instagram') > -1;
+        }
+
+        function showBrowserPopup() {
+            const popup = document.createElement('div');
+            popup.className = 'browser-popup';
+            popup.innerHTML = `
+                <div class="popup-content">
+                    <h3>Open in Browser</h3>
+                    <p>For the best experience with audio playback, please open this link in your regular browser.</p>
+                    <button id="open-browser-btn">Open in Browser</button>
+                    <button id="continue-anyway-btn">Continue Anyway</button>
+                </div>
+            `;
+            document.body.appendChild(popup);
+            document.getElementById('open-browser-btn').addEventListener('click', () => {
+                window.open(window.location.href, '_system');
+            });
+        
+            document.getElementById('continue-anyway-btn').addEventListener('click', () => {
+                popup.remove();
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
+            if (isInstagramBrowser()) {
+                showBrowserPopup();
+            }
             fetchPlaylist();
 
             const pauseButton = document.getElementById('pause');
