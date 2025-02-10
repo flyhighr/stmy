@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage-bg: #E8EAE3;
+            --sage-accent: #8C9E82;
+            --sage-text: #3C4A3B;
+            --sage-button: #A1B5A0;
+            --sage-button-hover: #7F9680;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            background-color: var(--sage-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            line-height: 1.6;
+            color: var(--sage-text);
+        }
+
+        .not-found-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+        }
+
+        .not-found-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--sage-accent);
+            margin-bottom: 20px;
+        }
+
+        .not-found-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .not-found-description {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            color: var(--sage-text);
+            opacity: 0.8;
+        }
+
+        .home-button {
+            display: inline-block;
+            background-color: var(--sage-button);
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-family: 'Comic Neue', cursive;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .home-button:hover {
+            background-color: var(--sage-button-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="not-found-container">
+        <h1 class="not-found-title">404</h1>
+        <h2 class="not-found-subtitle">Oops! The playlist you're looking for seems to have disappeared</h2>
+        <p class="not-found-description">
+            well that's okay return home and create your own <3
+        </p>
+        <a href="/" class="home-button">CREATE NEW PLAYLIST</a>
+    </div>
+</body>
+</html>
