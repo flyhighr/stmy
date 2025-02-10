@@ -68,7 +68,7 @@
                     }
                 }
                 console.error('Error:', error);
-                window.location.href = '/index.html';
+                window.location.href = '/notfound.html';
             }
         }
 
