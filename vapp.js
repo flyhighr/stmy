@@ -87,7 +87,8 @@
 
         function initializeViewer() {
             if (!playlist) return;
-
+                
+            document.title = `${playlist.sender_name}'s Playlist`;
             document.querySelector('.welcome-title').textContent = `${playlist.sender_name} sent you a playlist`;
             document.querySelector('.welcome-text').textContent = playlist.welcome_message;
             document.querySelector('.header p').textContent = `Songs that remind ${playlist.sender_name} of you`;
