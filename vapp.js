@@ -6,6 +6,36 @@
         let isPlayerReady = false;
         let touchStartX = 0;
         let touchEndX = 0;
+        let youtubeAPILoaded = false;
+        let youtubeAPIFailed = false;
+        
+        window.onYouTubeIframeAPIReady = function() {
+            youtubeAPILoaded = true;
+            initializeYouTubePlayer();
+        };
+        
+        setTimeout(() => {
+            if (!youtubeAPILoaded) {
+                youtubeAPIFailed = true;
+                showSimpleOpenInBrowserPopup();
+            }
+        }, 5000);
+        
+        function showSimpleOpenInBrowserPopup() {
+            const popup = document.createElement('div');
+            popup.className = 'browser-popup';
+            popup.innerHTML = `
+                <div class="popup-content">
+                    <p>Please tap to open in your browser for audio playback</p>
+                    <a href="${window.location.href}" target="_blank" id="open-link">Tap here</a>
+                </div>
+            `;
+            document.body.appendChild(popup);
+        
+            popup.addEventListener('click', () => {
+                window.location.href = window.location.href;
+            });
+        }
 
         // Theme handling
         const themeButtons = document.querySelectorAll('.theme-btn');
@@ -20,22 +50,35 @@
         function initializeYouTubePlayer() {
             if (!playlist || !playlist.songs || !playlist.songs.length) return;
             
-            const videoId = extractVideoId(playlist.songs[0].youtube_url);
-            player = new YT.Player('youtube-player', {
-                height: '0',
-                width: '0',
-                videoId: videoId,
-                playerVars: {
-                    'playsinline': 1,
-                    'controls': 0,
-                    'disablekb': 1,
-                    'origin': window.location.origin
-                },
-                events: {
-                    'onReady': onPlayerReady,
-                    'onStateChange': onPlayerStateChange
+            try {
+                const videoId = extractVideoId(playlist.songs[0].youtube_url);
+                player = new YT.Player('youtube-player', {
+                    height: '0',
+                    width: '0',
+                    videoId: videoId,
+                    playerVars: {
+                        'playsinline': 1,
+                        'controls': 0,
+                        'disablekb': 1,
+                        'origin': window.location.origin
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange,
+                        'onError': (event) => {
+                            if (!youtubeAPIFailed) {
+                                youtubeAPIFailed = true;
+                                showSimpleOpenInBrowserPopup();
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                if (!youtubeAPIFailed) {
+                    youtubeAPIFailed = true;
+                    showSimpleOpenInBrowserPopup();
                 }
-            });
+            }
         }
 
         async function fetchPlaylist() {
@@ -284,36 +327,8 @@
             player.loadVideoById(videoId);
             updateSongInfo();
         }
-        function isInstagramBrowser() {
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            return userAgent.indexOf('Instagram') > -1;
-        }
-
-        function showBrowserPopup() {
-            const popup = document.createElement('div');
-            popup.className = 'browser-popup';
-            popup.innerHTML = `
-                <div class="popup-content">
-                    <h3>Open in Browser</h3>
-                    <p>For the best experience with audio playback, please open this link in your regular browser.</p>
-                    <button id="open-browser-btn">Open in Browser</button>
-                    <button id="continue-anyway-btn">Continue Anyway</button>
-                </div>
-            `;
-            document.body.appendChild(popup);
-            document.getElementById('open-browser-btn').addEventListener('click', () => {
-                window.open(window.location.href, '_system');
-            });
         
-            document.getElementById('continue-anyway-btn').addEventListener('click', () => {
-                popup.remove();
-            });
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            if (isInstagramBrowser()) {
-                showBrowserPopup();
-            }
             fetchPlaylist();
 
             const pauseButton = document.getElementById('pause');
