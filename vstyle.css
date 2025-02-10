@@ -400,7 +400,6 @@
            justify-content: center;
            align-items: center;
            z-index: 9999;
-           cursor: pointer;
        }
        
        .popup-content {
@@ -416,15 +415,28 @@
            margin: 0 0 15px 0;
            color: #333;
            font-size: 16px;
+           font-weight: bold;
        }
        
-       #open-link {
-           display: inline-block;
+       .popup-content ol {
+           text-align: left;
+           margin: 0 0 20px 0;
+           padding-left: 30px;
+           color: #333;
+       }
+       
+       .popup-content li {
+           margin-bottom: 8px;
+           line-height: 1.4;
+       }
+       
+       #continue-anyway-btn {
            padding: 10px 20px;
            background-color: #007AFF;
            color: white;
-           text-decoration: none;
+           border: none;
            border-radius: 6px;
            font-weight: bold;
+           cursor: pointer;
        }
        
