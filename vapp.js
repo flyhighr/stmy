@@ -41,7 +41,7 @@
         async function fetchPlaylist() {
             const customUrl = getCustomUrl();
             if (!customUrl) {
-                window.location.href = '/index.html';
+                window.location.href = '/notfound.html';
                 return;
             }
 
