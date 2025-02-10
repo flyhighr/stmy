@@ -64,21 +64,12 @@
             if (path === '/' || path === '/index.html') {
                 return;
             }
+
             const customUrl = path.substring(1);
-            
+
             if (customUrl) {
-                fetch(customUrl)
-                    .then(response => {
-                        if (response.ok) {
-                            sessionStorage.setItem('customUrl', customUrl);
-                            window.location.href = `${baseUrl}/viewer.html`;
-                        } else {
-                            window.location.href = `${baseUrl}/notfound.html`;
-                        }
-                    })
-                    .catch(() => {
-                        window.location.href = `${baseUrl}/notfound.html`;
-                    });
+                sessionStorage.setItem('customUrl', customUrl);
+                window.location.href = `${baseUrl}/viewer.html`;
             } else {
                 window.location.href = `${baseUrl}/notfound.html`;
             }
