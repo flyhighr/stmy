@@ -11,18 +11,16 @@
     <div class="container">
         <h1>Create Your Special Playlist</h1>
         <p class="intro-text">Share your favorite songs with someone special. Create a unique playlist with your personal message and let the music speak for you. 🎵</p>
-        
+
         <form id="playlist-form">
             <div class="form-group">
                 <label for="sender-name">Your Name</label>
                 <input type="text" id="sender-name" placeholder="How you want to appear as the sender" required>
             </div>
-
             <label class="custom-url-toggle">
                 <input type="checkbox" id="custom-url-checkbox">
                 <span>I want to use a custom URL</span>
             </label>
-
             <div class="custom-url-field" id="custom-url-field">
                 <div class="form-group">
                     <label for="custom-url">Custom URL</label>
@@ -32,17 +30,14 @@
                     </div>
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="welcome-message">Your Message</label>
                 <textarea id="welcome-message" rows="4" placeholder="Write a heartfelt message for your recipient..." required></textarea>
             </div>
-
             <div class="tab-container">
                 <div class="tab active" data-tab="search">Search Songs</div>
                 <div class="tab" data-tab="manual">Manual Entry</div>
             </div>
-
             <div class="input-method active" id="search-method">
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="Search for a song...">
@@ -53,7 +48,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="input-method" id="manual-method">
                 <button type="button" class="add-song">
                     <span>Add Song Manually</span>
@@ -63,15 +57,38 @@
                     </svg>
                 </button>
             </div>
-
             <div class="songs-container" id="songs-container">
                 <!-- Song entries will be added here -->
             </div>
-
             <button type="submit" class="submit-playlist">Create Your Playlist ✨</button>
         </form>
     </div>
-
-<script src="iapp.js"></script>
+    
+    <!-- Timed Message Modal Template -->
+    <template id="timed-message-modal-template">
+        <div class="modal timed-message-modal">
+            <div class="modal-content">
+                <h2>Add Timed Message</h2>
+                <div class="form-group">
+                    <label for="message-start-time">Start Time (MM:SS)</label>
+                    <input type="text" id="message-start-time" placeholder="00:00" pattern="[0-5][0-9]:[0-5][0-9]" required>
+                </div>
+                <div class="form-group">
+                    <label for="message-end-time">End Time (MM:SS) - Optional</label>
+                    <input type="text" id="message-end-time" placeholder="00:00" pattern="[0-5][0-9]:[0-5][0-9]">
+                </div>
+                <div class="form-group">
+                    <label for="timed-message">Message</label>
+                    <textarea id="timed-message" rows="3" placeholder="Enter your message..." maxlength="500" required></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-message">Cancel</button>
+                    <button type="button" class="save-message">Save Message</button>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <script src="iapp.js"></script>
 </body>
 </html>
