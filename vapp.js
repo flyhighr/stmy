@@ -1,4 +1,3 @@
-
         let player;
         let currentSong = 0;
         let progressInterval;
@@ -6,6 +5,8 @@
         let isPlayerReady = false;
         let touchStartX = 0;
         let touchEndX = 0;
+        let activeMessages = new Set();
+        let messageCheckInterval;
 
         // Theme handling
         const themeButtons = document.querySelectorAll('.theme-btn');
@@ -37,14 +38,14 @@
                 }
             });
         }
-
+        
         async function fetchPlaylist() {
             const customUrl = getCustomUrl();
             if (!customUrl) {
                 window.location.href = '/notfound.html';
                 return;
             }
-
+        
             try {
                 const response = await fetch(`https://ptrmoy.onrender.com/api/playlists/${customUrl}`);
                 if (!response.ok) throw new Error('Playlist not found');
@@ -55,6 +56,7 @@
                 
                 initializeViewer();
                 initializeYouTubePlayer();
+                setupMessageContainer();
             } catch (error) {
                 const storedPlaylist = localStorage.getItem('currentPlaylist');
                 if (storedPlaylist) {
@@ -64,12 +66,74 @@
                         history.replaceState({}, '', '/' + customUrl);
                         initializeViewer();
                         initializeYouTubePlayer();
+                        setupMessageContainer();
                         return;
                     }
                 }
                 console.error('Error:', error);
                 window.location.href = '/notfound.html';
             }
+        }
+
+        function setupMessageContainer() {
+            if (!document.getElementById('timed-messages-container')) {
+                const container = document.createElement('div');
+                container.id = 'timed-messages-container';
+                document.querySelector('.container').insertBefore(
+                    container,
+                    document.getElementById('song-info-container')
+                );
+            }
+        }
+
+        function checkTimedMessages() {
+            if (!player || !player.getCurrentTime || !playlist.songs[currentSong].timed_messages) return;
+        
+            const currentTime = player.getCurrentTime();
+            const messages = playlist.songs[currentSong].timed_messages;
+            const messageContainer = document.getElementById('timed-messages-container');
+        
+            messages.forEach(message => {
+                const messageId = `message-${message.start_seconds}`;
+                const shouldBeActive = currentTime >= message.start_seconds && 
+                    (!message.end_seconds || currentTime <= message.end_seconds);
+                
+                if (shouldBeActive && !activeMessages.has(messageId)) {
+                    const messageElement = document.createElement('div');
+                    messageElement.id = messageId;
+                    messageElement.className = 'timed-message';
+                    messageElement.textContent = message.message;
+                    messageContainer.appendChild(messageElement);
+                    activeMessages.add(messageId);
+                
+                    setTimeout(() => messageElement.classList.add('active'), 10);
+                    if (message.end_seconds) {
+                        const duration = (message.end_seconds - message.start_seconds) * 1000;
+                        setTimeout(() => {
+                            removeMessage(messageId);
+                        }, duration);
+                    }
+                } else if (!shouldBeActive && activeMessages.has(messageId)) {
+                    removeMessage(messageId);
+                }
+            });
+        }
+        
+        function removeMessage(messageId) {
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.classList.remove('active');
+                setTimeout(() => {
+                    messageElement.remove();
+                    activeMessages.delete(messageId);
+                }, 500);
+            }
+        }
+        
+        function clearAllMessages() {
+            const container = document.getElementById('timed-messages-container');
+            container.innerHTML = '';
+            activeMessages.clear();
         }
 
         function getCustomUrl() {
@@ -208,9 +272,11 @@
             } else if (event.data == YT.PlayerState.PLAYING) {
                 pauseButton.textContent = '▐▐';
                 startProgress();
+                startMessageCheck();
             } else if (event.data == YT.PlayerState.PAUSED) {
                 pauseButton.textContent = '▶';
                 clearInterval(progressInterval);
+                clearInterval(messageCheckInterval);
             }
         }
 
@@ -265,20 +331,29 @@
             }
         }
 
+        function startMessageCheck() {
+            clearInterval(messageCheckInterval);
+            messageCheckInterval = setInterval(checkTimedMessages, 100);
+        }
+        
         function nextSong() {
             if (!isPlayerReady) return;
             
             clearInterval(progressInterval);
+            clearInterval(messageCheckInterval);
+            clearAllMessages();
             currentSong = (currentSong + 1) % playlist.songs.length;
             const videoId = extractVideoId(playlist.songs[currentSong].youtube_url);
             player.loadVideoById(videoId);
             updateSongInfo();
         }
-
+        
         function prevSong() {
             if (!isPlayerReady) return;
             
             clearInterval(progressInterval);
+            clearInterval(messageCheckInterval);
+            clearAllMessages();
             currentSong = (currentSong - 1 + playlist.songs.length) % playlist.songs.length;
             const videoId = extractVideoId(playlist.songs[currentSong].youtube_url);
             player.loadVideoById(videoId);
