@@ -16,6 +16,23 @@
         const searchResults = document.querySelector('.search-results');
         const loading = document.querySelector('.loading');
 
+        async function getYouTubeUrl(title, artist) {
+            try {
+                const response = await fetch(
+                    `${BACKEND_URL}/api/youtube-url?` + 
+                    new URLSearchParams({
+                        title: title,
+                        artist: artist
+                    })
+                );
+                const data = await response.json();
+                return data.youtube_url;
+            } catch (error) {
+                console.error('Error getting YouTube URL:', error);
+                return null;
+            }
+        }
+
         async function searchSongs(query) {
             try {
                 loading.classList.add('active');
@@ -55,14 +72,23 @@
             }
         }
 
-        function addSpotifySong(spotifySong) {
+        async function addSpotifySong(spotifySong) {
             if (songCount >= 100) {
                 alert('Maximum 100 songs allowed');
                 return;
             }
-
+        
             const songEntry = document.createElement('div');
             songEntry.className = 'song-entry';
+            songEntry.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Finding YouTube link...</span>
+                </div>
+            `;
+            document.getElementById('songs-container').appendChild(songEntry);
+            songCount++;
+            const youtubeUrl = await getYouTubeUrl(spotifySong.title, spotifySong.artist);
             songEntry.innerHTML = `
                 <button type="button" class="remove-song">Remove</button>
                 <div class="form-group">
@@ -79,11 +105,12 @@
                 </div>
                 <div class="form-group">
                     <label>YouTube URL</label>
-                    <input type="url" class="song-youtube" placeholder="Paste the YouTube video URL" required>
+                    <input type="url" class="song-youtube" value="${youtubeUrl || ''}" 
+                           placeholder="Paste the YouTube video URL" required
+                           ${youtubeUrl ? 'data-auto-filled="true"' : ''}>
+                    ${youtubeUrl ? '<span class="auto-filled-badge">Auto-filled ✓</span>' : ''}
                 </div>
             `;
-            document.getElementById('songs-container').appendChild(songEntry);
-            songCount++;
             
             songEntry.querySelector('.remove-song').addEventListener('click', () => {
                 songEntry.remove();
