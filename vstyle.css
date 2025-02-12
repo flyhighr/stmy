@@ -412,10 +412,6 @@ body {
         max-width: 150px;
     }
     
-    .timed-message {
-        font-size: 1rem;
-        padding: 10px 20px;
-    }
 }
 
 .browser-popup {
@@ -516,4 +512,5 @@ body {
         font-size: 1rem;
         padding: 10px 20px;
     }
+    
 }
