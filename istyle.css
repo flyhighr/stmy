@@ -415,15 +415,32 @@
             color: #e03131;
             display: block;
         }
-
+      
+      .youtube-url-group {
+          position: relative;
+      }
+      
+      .youtube-input-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+      
       .auto-filled-badge {
           display: inline-block;
-          margin-left: 8px;
           padding: 2px 6px;
           background-color: #4CAF50;
           color: white;
           border-radius: 4px;
           font-size: 12px;
+          white-space: nowrap;
+      }
+      
+      .error-message {
+          color: #ff4444;
+          font-size: 12px;
+          margin-top: 4px;
+          display: block;
       }
       
       .song-entry .loading {
@@ -447,7 +464,6 @@
           background-color: #f8fff8;
           border-color: #4CAF50;
       }
-
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
