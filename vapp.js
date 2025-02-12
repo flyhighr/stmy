@@ -86,12 +86,22 @@
             }
         }
 
+        function timeStringToSeconds(timeStr) {
+            const [minutes, seconds] = timeStr.split(':').map(Number);
+            return minutes * 60 + seconds;
+        }
         function checkTimedMessages() {
             if (!player || !player.getCurrentTime || !playlist.songs[currentSong].timed_messages) return;
         
             const currentTime = player.getCurrentTime();
-            const messages = playlist.songs[currentSong].timed_messages;
+            const messages = playlist.songs[currentSong].timed_messages.map(msg => ({
+                ...msg,
+                start_seconds: timeStringToSeconds(msg.start_time),
+                end_seconds: msg.end_time ? timeStringToSeconds(msg.end_time) : null
+            }));
+        
             const messageContainer = document.getElementById('timed-messages-container');
+            if (!messageContainer) return;
         
             messages.forEach(message => {
                 const messageId = `message-${message.start_seconds}`;
@@ -99,14 +109,17 @@
                     (!message.end_seconds || currentTime <= message.end_seconds);
                 
                 if (shouldBeActive && !activeMessages.has(messageId)) {
+                    const sanitizedMessage = message.message.replace(/<[^>]*>/g, '');
+                    
                     const messageElement = document.createElement('div');
                     messageElement.id = messageId;
                     messageElement.className = 'timed-message';
-                    messageElement.textContent = message.message;
+                    messageElement.textContent = sanitizedMessage;
                     messageContainer.appendChild(messageElement);
                     activeMessages.add(messageId);
                 
                     setTimeout(() => messageElement.classList.add('active'), 10);
+                    
                     if (message.end_seconds) {
                         const duration = (message.end_seconds - message.start_seconds) * 1000;
                         setTimeout(() => {
@@ -117,6 +130,17 @@
                     removeMessage(messageId);
                 }
             });
+        }
+        function startMessageCheck() {
+            clearInterval(messageCheckInterval);
+            messageCheckInterval = setInterval(checkTimedMessages, 100);
+        }
+        function clearAllMessages() {
+            const container = document.getElementById('timed-messages-container');
+            if (container) {
+                container.innerHTML = '';
+                activeMessages.clear();
+            }
         }
         
         function removeMessage(messageId) {
@@ -130,11 +154,6 @@
             }
         }
         
-        function clearAllMessages() {
-            const container = document.getElementById('timed-messages-container');
-            container.innerHTML = '';
-            activeMessages.clear();
-        }
 
         function getCustomUrl() {
             const storedUrl = sessionStorage.getItem('customUrl');
@@ -331,10 +350,6 @@
             }
         }
 
-        function startMessageCheck() {
-            clearInterval(messageCheckInterval);
-            messageCheckInterval = setInterval(checkTimedMessages, 100);
-        }
         
         function nextSong() {
             if (!isPlayerReady) return;
