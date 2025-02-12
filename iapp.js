@@ -18,6 +18,7 @@
 
         async function getYouTubeUrl(title, artist) {
             try {
+                console.log(`Searching YouTube for: ${title} - ${artist}`);
                 const response = await fetch(
                     `${BACKEND_URL}/api/youtube-url?` + 
                     new URLSearchParams({
@@ -26,6 +27,7 @@
                     })
                 );
                 const data = await response.json();
+                console.log('YouTube search response:', data);
                 return data.youtube_url;
             } catch (error) {
                 console.error('Error getting YouTube URL:', error);
@@ -77,7 +79,7 @@
                 alert('Maximum 100 songs allowed');
                 return;
             }
-        
+            console.log('Adding Spotify song:', spotifySong);
             const songEntry = document.createElement('div');
             songEntry.className = 'song-entry';
             songEntry.innerHTML = `
@@ -88,34 +90,82 @@
             `;
             document.getElementById('songs-container').appendChild(songEntry);
             songCount++;
-            const youtubeUrl = await getYouTubeUrl(spotifySong.title, spotifySong.artist);
-            songEntry.innerHTML = `
-                <button type="button" class="remove-song">Remove</button>
-                <div class="form-group">
-                    <label>Song Title</label>
-                    <input type="text" class="song-title" value="${spotifySong.title}" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Artist</label>
-                    <input type="text" class="song-artist" value="${spotifySong.artist}" readonly>
-                </div>
-                <div class="form-group">
-                    <label>Cover Image URL</label>
-                    <input type="url" class="song-cover" value="${spotifySong.cover_url}" readonly>
-                </div>
-                <div class="form-group">
-                    <label>YouTube URL</label>
-                    <input type="url" class="song-youtube" value="${youtubeUrl || ''}" 
-                           placeholder="Paste the YouTube video URL" required
-                           ${youtubeUrl ? 'data-auto-filled="true"' : ''}>
-                    ${youtubeUrl ? '<span class="auto-filled-badge">Auto-filled ✓</span>' : ''}
-                </div>
-            `;
-            
-            songEntry.querySelector('.remove-song').addEventListener('click', () => {
-                songEntry.remove();
-                songCount--;
-            });
+        
+            try {
+                console.log('Fetching YouTube URL...');
+                const youtubeUrl = await getYouTubeUrl(spotifySong.title, spotifySong.artist);
+                console.log('Received YouTube URL:', youtubeUrl);
+                
+                songEntry.innerHTML = `
+                    <button type="button" class="remove-song">Remove</button>
+                    <div class="form-group">
+                        <label>Song Title</label>
+                        <input type="text" class="song-title" value="${spotifySong.title}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Artist</label>
+                        <input type="text" class="song-artist" value="${spotifySong.artist}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover Image URL</label>
+                        <input type="url" class="song-cover" value="${spotifySong.cover_url}" readonly>
+                    </div>
+                    <div class="form-group youtube-url-group">
+                        <label>YouTube URL</label>
+                        <div class="youtube-input-wrapper">
+                            <input type="url" 
+                                   class="song-youtube" 
+                                   value="${youtubeUrl || ''}" 
+                                   placeholder="Paste the YouTube video URL" 
+                                   required
+                                   ${youtubeUrl ? 'data-auto-filled="true"' : ''}>
+                            ${youtubeUrl ? '<span class="auto-filled-badge">Auto-filled ✓</span>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                const removeButton = songEntry.querySelector('.remove-song');
+                if (removeButton) {
+                    removeButton.addEventListener('click', () => {
+                        songEntry.remove();
+                        songCount--;
+                    });
+                }
+        
+                const youtubeInput = songEntry.querySelector('.song-youtube');
+                console.log('YouTube input value after setting:', youtubeInput?.value);
+                
+            } catch (error) {
+                console.error('Error in addSpotifySong:', error);
+                songEntry.innerHTML = `
+                    <button type="button" class="remove-song">Remove</button>
+                    <div class="form-group">
+                        <label>Song Title</label>
+                        <input type="text" class="song-title" value="${spotifySong.title}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Artist</label>
+                        <input type="text" class="song-artist" value="${spotifySong.artist}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Cover Image URL</label>
+                        <input type="url" class="song-cover" value="${spotifySong.cover_url}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>YouTube URL</label>
+                        <input type="url" class="song-youtube" placeholder="Paste the YouTube video URL" required>
+                        <span class="error-message">Auto-fill failed. Please enter URL manually.</span>
+                    </div>
+                `;
+                
+                const removeButton = songEntry.querySelector('.remove-song');
+                if (removeButton) {
+                    removeButton.addEventListener('click', () => {
+                        songEntry.remove();
+                        songCount--;
+                    });
+                }
+            }
         }
 
         function addManualSong() {
