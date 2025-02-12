@@ -90,6 +90,46 @@
             const [minutes, seconds] = timeStr.split(':').map(Number);
             return minutes * 60 + seconds;
         }
+
+
+        function isImageUrl(str) {
+            str = str.trim();
+            const words = str.split(/\s+/);
+            if (words.length > 1) return false;
+            const imageExtensions = /\.(jpg|jpeg|png|gif|webp)$/i;
+            try {
+                const url = new URL(str);
+                return imageExtensions.test(url.pathname);
+            } catch {
+                return false;
+            }
+        }
+        
+        function createMessageElement(message) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'timed-message';
+            
+            if (isImageUrl(message)) {
+                const imgContainer = document.createElement('div');
+                imgContainer.className = 'message-image-container';
+                const img = document.createElement('img');
+                img.src = message;
+                img.alt = 'Message Image';
+                img.className = 'message-image';
+                img.style.opacity = '0';
+                img.onload = () => {
+                    img.style.opacity = '1';
+                };
+                
+                imgContainer.appendChild(img);
+                messageElement.appendChild(imgContainer);
+            } else {
+                messageElement.textContent = message;
+            }
+            
+            return messageElement;
+        }
+        
         function checkTimedMessages() {
             if (!player || !player.getCurrentTime || !playlist.songs[currentSong].timed_messages) return;
         
@@ -110,11 +150,9 @@
                 
                 if (shouldBeActive && !activeMessages.has(messageId)) {
                     const sanitizedMessage = message.message.replace(/<[^>]*>/g, '');
-                    
-                    const messageElement = document.createElement('div');
+                    const messageElement = createMessageElement(sanitizedMessage);
                     messageElement.id = messageId;
-                    messageElement.className = 'timed-message';
-                    messageElement.textContent = sanitizedMessage;
+                    
                     messageContainer.appendChild(messageElement);
                     activeMessages.add(messageId);
                 
@@ -131,6 +169,7 @@
                 }
             });
         }
+
         function startMessageCheck() {
             clearInterval(messageCheckInterval);
             messageCheckInterval = setInterval(checkTimedMessages, 100);
