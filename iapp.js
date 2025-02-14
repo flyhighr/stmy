@@ -15,62 +15,6 @@ const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
 const searchResults = document.querySelector('.search-results');
 const loading = document.querySelector('.loading');
-const spotifyPlaylistInput = document.getElementById('spotify-playlist-url');
-const importPlaylistButton = document.getElementById('import-playlist');
-const importStatus = document.querySelector('.import-status');
-
-async function importSpotifyPlaylist(playlistUrl) {
-    try {
-        importStatus.textContent = 'Importing playlist...';
-        importStatus.className = 'import-status loading';
-
-        const response = await fetch(`${BACKEND_URL}/api/import-spotify-playlist`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ playlist_url: playlistUrl })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to import playlist');
-        }
-
-        const tracks = await response.json();
-        importStatus.textContent = `Found ${tracks.length} songs. Adding to your playlist...`;
-
-        for (const track of tracks) {
-            await addSpotifySong(track);
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
-
-        importStatus.textContent = 'Playlist imported successfully!';
-        importStatus.className = 'import-status success';
-        spotifyPlaylistInput.value = '';
-
-    } catch (error) {
-        console.error('Error importing playlist:', error);
-        importStatus.textContent = 'Failed to import playlist. Please check the URL and try again.';
-        importStatus.className = 'import-status error';
-    }
-}
-
-importPlaylistButton.addEventListener('click', () => {
-    const playlistUrl = spotifyPlaylistInput.value.trim();
-    if (playlistUrl) {
-        importSpotifyPlaylist(playlistUrl);
-    }
-});
-
-spotifyPlaylistInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const playlistUrl = spotifyPlaylistInput.value.trim();
-        if (playlistUrl) {
-            importSpotifyPlaylist(playlistUrl);
-        }
-    }
-});
 
 function createTimedMessageButton() {
     const button = document.createElement('button');
