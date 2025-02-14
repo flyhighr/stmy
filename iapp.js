@@ -11,6 +11,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
+
 const searchInput = document.querySelector('.search-input');
 const searchButton = document.querySelector('.search-button');
 const searchResults = document.querySelector('.search-results');
@@ -349,6 +350,73 @@ function addManualSong() {
     });
 }
 
+
+async function importSpotifyPlaylist(playlistUrl) {
+    const importStatus = document.querySelector('.import-status');
+    const songsContainer = document.getElementById('songs-container');
+    
+    try {
+        importStatus.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Importing playlist...</span>
+            </div>
+        `;
+        
+        const response = await fetch(`${BACKEND_URL}/api/import-spotify-playlist`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ playlist_url: playlistUrl })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to import playlist');
+        }
+        
+        const playlist = await response.json();
+        
+        importStatus.innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Finding YouTube links for ${playlist.tracks.length} songs...</span>
+            </div>
+        `;
+        
+        let addedCount = 0;
+        for (const track of playlist.tracks) {
+            if (songCount >= 100) {
+                importStatus.innerHTML = '<div class="error">Maximum 100 songs limit reached</div>';
+                break;
+            }
+            
+            await addSpotifySong({
+                title: track.title,
+                artist: track.artist,
+                cover_url: track.cover_url
+            });
+            
+            addedCount++;
+            importStatus.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Processed ${addedCount} of ${playlist.tracks.length} songs...</span>
+                </div>
+            `;
+        }
+        
+        importStatus.innerHTML = `<div class="success">Successfully imported ${addedCount} songs!</div>`;
+        setTimeout(() => {
+            importStatus.innerHTML = '';
+        }, 5000);
+        
+    } catch (error) {
+        console.error('Error importing playlist:', error);
+        importStatus.innerHTML = '<div class="error">Failed to import playlist. Please check the URL and try again.</div>';
+    }
+}
+
 async function handleSubmit(e) {
     e.preventDefault();
 
@@ -509,6 +577,13 @@ searchInput.addEventListener('keypress', (e) => {
         if (query) {
             searchSongs(query);
         }
+    }
+});
+
+document.querySelector('.import-playlist-button').addEventListener('click', () => {
+    const playlistUrl = document.querySelector('.spotify-playlist-input').value.trim();
+    if (playlistUrl) {
+        importSpotifyPlaylist(playlistUrl);
     }
 });
 
