@@ -48,6 +48,71 @@ function parseTimeToSeconds(timeString) {
     return minutes * 60 + seconds;
 }
 
+
+async function importSpotifyPlaylist(playlistUrl) {
+    const spotifyLoading = document.querySelector('.spotify-loading');
+    spotifyLoading.classList.add('active');
+    
+    try {
+        const response = await fetch(
+            `${BACKEND_URL}/api/spotify-playlist/${encodeURIComponent(playlistUrl)}`
+        );
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch playlist');
+        }
+        
+        const data = await response.json();
+        const tracks = data.tracks;
+        
+        if (tracks.length === 0) {
+            alert('No tracks found in playlist');
+            return;
+        }
+        
+        if (songCount + tracks.length > 100) {
+            alert(`You can only add up to 100 songs. This playlist has ${tracks.length} songs.`);
+            return;
+        }
+        
+        const loadingMessage = document.createElement('div');
+        loadingMessage.className = 'import-status';
+        loadingMessage.textContent = 'Importing songs...';
+        document.querySelector('.spotify-container').appendChild(loadingMessage);
+        
+        for (let i = 0; i < tracks.length; i++) {
+            const track = tracks[i];
+            loadingMessage.textContent = `Importing song ${i + 1} of ${tracks.length}...`;
+            await addSpotifySong(track);
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
+        loadingMessage.textContent = 'Playlist import complete!';
+        setTimeout(() => loadingMessage.remove(), 3000);
+        
+    } catch (error) {
+        console.error('Error importing playlist:', error);
+        alert('Failed to import playlist. Please try again.');
+    } finally {
+        spotifyLoading.classList.remove('active');
+    }
+}
+
+document.querySelector('.import-playlist')?.addEventListener('click', () => {
+    const playlistUrl = document.querySelector('.spotify-input').value.trim();
+    if (!playlistUrl) {
+        alert('Please enter a Spotify playlist URL');
+        return;
+    }
+    
+    if (!playlistUrl.includes('spotify.com/playlist/')) {
+        alert('Please enter a valid Spotify playlist URL');
+        return;
+    }
+    
+    importSpotifyPlaylist(playlistUrl);
+});
+
 function showTimedMessageModal(songEntry) {
     const template = document.getElementById('timed-message-modal-template');
     const modal = template.content.cloneNode(true).querySelector('.modal');
