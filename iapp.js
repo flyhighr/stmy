@@ -501,11 +501,22 @@ async function handleSubmit(e) {
 
 // URL Availability Checking
 async function checkUrlAvailability(url) {
+    urlStatus.style.display = 'block';
     urlStatus.className = 'url-status';
-    urlStatus.style.display = 'none';
-    if (!url || url.length < 3 || !/^[a-zA-Z0-9]+$/.test(url)) {
-        urlStatus.style.display = 'block';
-        urlStatus.textContent = 'URL must be at least 3 characters long and contain only letters and numbers';
+    if (!url) {
+        urlStatus.textContent = 'Please enter a custom URL';
+        urlStatus.className = 'url-status unavailable';
+        return;
+    }
+    
+    if (url.length < 3) {
+        urlStatus.textContent = 'URL must be at least 3 characters long';
+        urlStatus.className = 'url-status unavailable';
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9]+$/.test(url)) {
+        urlStatus.textContent = 'URL can only contain letters and numbers';
         urlStatus.className = 'url-status unavailable';
         return;
     }
@@ -524,8 +535,6 @@ async function checkUrlAvailability(url) {
         const data = await response.json();
         
         if (url === customUrlInput.value.trim()) {
-            urlStatus.style.display = 'block';
-            
             if (data.available) {
                 urlStatus.textContent = '✓ Available';
                 urlStatus.className = 'url-status available';
@@ -536,7 +545,8 @@ async function checkUrlAvailability(url) {
         }
     } catch (error) {
         console.error('Error checking URL availability:', error);
-        urlStatus.style.display = 'none';
+        urlStatus.textContent = 'Error checking URL availability';
+        urlStatus.className = 'url-status unavailable';
         lastCheckedUrl = '';
     }
 }
@@ -568,14 +578,10 @@ customUrlInput.addEventListener('input', (e) => {
         clearTimeout(urlCheckTimeout);
     }
 
-    urlStatus.className = 'url-status';
-    urlStatus.style.display = 'none';
-    if (url && url.length >= 3 && url !== lastCheckedUrl) {
+    checkUrlAvailability(url);
+    
+    if (url && url.length >= 3 && /^[a-zA-Z0-9]+$/.test(url) && url !== lastCheckedUrl) {
         urlCheckTimeout = setTimeout(() => checkUrlAvailability(url), 500);
-    } else if (url.length > 0 && url.length < 3) {
-        urlStatus.style.display = 'block';
-        urlStatus.textContent = 'URL must be at least 3 characters long';
-        urlStatus.className = 'url-status unavailable';
     }
 });
 
