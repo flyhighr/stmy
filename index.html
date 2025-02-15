@@ -36,6 +36,7 @@
             </div>
             <div class="tab-container">
                 <div class="tab active" data-tab="search">Search Songs</div>
+                <div class="tab" data-tab="spotify">Spotify Playlist</div>
                 <div class="tab" data-tab="manual">Manual Entry</div>
             </div>
             <div class="input-method active" id="search-method">
@@ -48,6 +49,18 @@
                     </div>
                 </div>
             </div>
+            <div class="input-method" id="spotify-method">
+            <div class="spotify-container">
+                <input type="text" 
+                       class="spotify-input" 
+                       placeholder="Paste Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)">
+                <button type="button" class="import-playlist">Import Playlist</button>
+                <div class="loading spotify-loading">
+                    <div class="spinner"></div>
+                    <span>Importing playlist...</span>
+                </div>
+            </div>
+        </div>
             <div class="input-method" id="manual-method">
                 <button type="button" class="add-song">
                     <span>Add Song Manually</span>
