@@ -48,7 +48,6 @@ function parseTimeToSeconds(timeString) {
     return minutes * 60 + seconds;
 }
 
-
 async function importSpotifyPlaylist(playlistUrl) {
     const spotifyLoading = document.querySelector('.spotify-loading');
     const loadingMessage = document.createElement('div');
@@ -498,18 +497,21 @@ async function handleSubmit(e) {
     }
 }
 
+// Optimized URL checking code
 const customUrlCheckbox = document.getElementById('custom-url-checkbox');
 const customUrlField = document.getElementById('custom-url-field');
 const customUrlInput = document.getElementById('custom-url');
 const urlStatus = document.querySelector('.url-status');
 let urlCheckTimeout;
+let lastCheckedUrl = '';
 
-customUrlCheckbox.addEventListener('change', async (e) => {
+customUrlCheckbox.addEventListener('change', (e) => {
     if (e.target.checked) {
         customUrlField.classList.add('active');
         customUrlInput.setAttribute('required', 'required');
-        if (customUrlInput.value.trim()) {
-            await checkUrlAvailability(customUrlInput.value.trim());
+        const currentUrl = customUrlInput.value.trim();
+        if (currentUrl && currentUrl !== lastCheckedUrl) {
+            checkUrlAvailability(currentUrl);
         }
     } else {
         customUrlField.classList.remove('active');
@@ -517,6 +519,7 @@ customUrlCheckbox.addEventListener('change', async (e) => {
         customUrlInput.value = '';
         urlStatus.className = 'url-status';
         urlStatus.style.display = 'none';
+        lastCheckedUrl = '';
     }
 });
 
@@ -528,25 +531,34 @@ async function checkUrlAvailability(url) {
         return;
     }
 
+    if (url === lastCheckedUrl) {
+        return;
+    }
+
     try {
+        lastCheckedUrl = url;
         const response = await fetch(`${BACKEND_URL}/api/url-available/${encodeURIComponent(url)}`);
         if (!response.ok) {
             throw new Error('Failed to check URL availability');
         }
 
         const data = await response.json();
-        urlStatus.style.display = 'block';
-
-        if (data.available) {
-            urlStatus.textContent = '✓ Available';
-            urlStatus.className = 'url-status available';
-        } else {
-            urlStatus.textContent = '✗ Unavailable';
-            urlStatus.className = 'url-status unavailable';
+        
+        if (url === customUrlInput.value.trim()) {
+            urlStatus.style.display = 'block';
+            
+            if (data.available) {
+                urlStatus.textContent = '✓ Available';
+                urlStatus.className = 'url-status available';
+            } else {
+                urlStatus.textContent = '✗ Unavailable';
+                urlStatus.className = 'url-status unavailable';
+            }
         }
     } catch (error) {
         console.error('Error checking URL availability:', error);
         urlStatus.style.display = 'none';
+        lastCheckedUrl = '';
     }
 }
 
@@ -556,16 +568,18 @@ customUrlInput.addEventListener('input', (e) => {
     if (urlCheckTimeout) {
         clearTimeout(urlCheckTimeout);
     }
+
     urlStatus.className = 'url-status';
     urlStatus.style.display = 'none';
-    if (url) {
-        urlCheckTimeout = setTimeout(() => checkUrlAvailability(url), 300);
+
+    if (url && url !== lastCheckedUrl) {
+        urlCheckTimeout = setTimeout(() => checkUrlAvailability(url), 500);
     }
 });
 
 customUrlInput.addEventListener('blur', (e) => {
     const url = e.target.value.trim();
-    if (url) {
+    if (url && url !== lastCheckedUrl) {
         checkUrlAvailability(url);
     }
 });
