@@ -1,6 +1,22 @@
+// Constants and Global Variables
 const BACKEND_URL = 'https://ptrmoy.onrender.com';
 let songCount = 0;
 
+// DOM Elements
+const searchInput = document.querySelector('.search-input');
+const searchButton = document.querySelector('.search-button');
+const searchResults = document.querySelector('.search-results');
+const loading = document.querySelector('.loading');
+const customUrlCheckbox = document.getElementById('custom-url-checkbox');
+const customUrlField = document.getElementById('custom-url-field');
+const customUrlInput = document.getElementById('custom-url');
+const urlStatus = document.querySelector('.url-status');
+
+// URL Checking Variables
+let urlCheckTimeout;
+let lastCheckedUrl = '';
+
+// Tab Navigation
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -11,11 +27,19 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
-const searchInput = document.querySelector('.search-input');
-const searchButton = document.querySelector('.search-button');
-const searchResults = document.querySelector('.search-results');
-const loading = document.querySelector('.loading');
+// Utility Functions
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
 
+function parseTimeToSeconds(timeString) {
+    const [minutes, seconds] = timeString.split(':').map(Number);
+    return minutes * 60 + seconds;
+}
+
+// UI Component Creation Functions
 function createTimedMessageButton() {
     const button = document.createElement('button');
     button.type = 'button';
@@ -37,91 +61,7 @@ function createTimedMessagesList() {
     return container;
 }
 
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-}
-
-function parseTimeToSeconds(timeString) {
-    const [minutes, seconds] = timeString.split(':').map(Number);
-    return minutes * 60 + seconds;
-}
-
-async function importSpotifyPlaylist(playlistUrl) {
-    const spotifyLoading = document.querySelector('.spotify-loading');
-    const loadingMessage = document.createElement('div');
-    loadingMessage.className = 'import-status';
-    document.querySelector('.spotify-container').appendChild(loadingMessage);
-    
-    spotifyLoading.classList.add('active');
-    loadingMessage.textContent = 'Fetching playlist...';
-    
-    try {
-        const response = await fetch(
-            `${BACKEND_URL}/api/spotify-playlist/${encodeURIComponent(playlistUrl)}`
-        );
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Failed to fetch playlist');
-        }
-        
-        const data = await response.json();
-        const tracks = data.tracks;
-        
-        if (!tracks || tracks.length === 0) {
-            throw new Error('No tracks found in playlist');
-        }
-        
-        if (songCount + tracks.length > 100) {
-            throw new Error(`You can only add up to 100 songs. This playlist has ${tracks.length} songs.`);
-        }
-        
-        for (let i = 0; i < tracks.length; i++) {
-            const track = tracks[i];
-            loadingMessage.textContent = `Importing song ${i + 1} of ${tracks.length}...`;
-            
-            try {
-                await addSpotifySong(track);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            } catch (error) {
-                console.error(`Error importing track ${track.title}:`, error);
-                loadingMessage.textContent = `Warning: Failed to import "${track.title}". Continuing with next song...`;
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            }
-        }
-        
-        loadingMessage.textContent = 'Playlist import complete!';
-        loadingMessage.style.color = '#4CAF50';
-        setTimeout(() => loadingMessage.remove(), 5000);
-        
-    } catch (error) {
-        console.error('Error importing playlist:', error);
-        loadingMessage.textContent = `Error: ${error.message}`;
-        loadingMessage.style.color = '#f44336';
-        setTimeout(() => loadingMessage.remove(), 5000);
-    } finally {
-        spotifyLoading.classList.remove('active');
-    }
-}
-
-document.querySelector('.import-playlist')?.addEventListener('click', () => {
-    const playlistUrl = document.querySelector('.spotify-input').value.trim();
-    if (!playlistUrl) {
-        alert('Please enter a Spotify playlist URL');
-        return;
-    }
-    
-    const spotifyUrlRegex = /^https:\/\/open\.spotify\.com\/playlist\/[a-zA-Z0-9]+(\?.*)?$/;
-    if (!spotifyUrlRegex.test(playlistUrl)) {
-        alert('Please enter a valid Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)');
-        return;
-    }
-    
-    importSpotifyPlaylist(playlistUrl);
-});
-
+// Timed Message Functions
 function showTimedMessageModal(songEntry) {
     const template = document.getElementById('timed-message-modal-template');
     const modal = template.content.cloneNode(true).querySelector('.modal');
@@ -222,6 +162,7 @@ function addTimedMessage(songEntry, startTime, message, endTime = null) {
     messagesList.appendChild(messageElement);
 }
 
+// API Functions
 async function getYouTubeUrl(title, artist) {
     try {
         console.log(`Searching YouTube for: ${title} - ${artist}`);
@@ -280,6 +221,7 @@ async function searchSongs(query) {
     }
 }
 
+// Song Management Functions
 async function addSpotifySong(spotifySong) {
     if (songCount >= 100) {
         alert('Maximum 100 songs allowed');
@@ -423,6 +365,66 @@ function addManualSong() {
     });
 }
 
+// Spotify Playlist Import
+async function importSpotifyPlaylist(playlistUrl) {
+    const spotifyLoading = document.querySelector('.spotify-loading');
+    const loadingMessage = document.createElement('div');
+    loadingMessage.className = 'import-status';
+    document.querySelector('.spotify-container').appendChild(loadingMessage);
+    
+    spotifyLoading.classList.add('active');
+    loadingMessage.textContent = 'Fetching playlist...';
+    
+    try {
+        const response = await fetch(
+            `${BACKEND_URL}/api/spotify-playlist/${encodeURIComponent(playlistUrl)}`
+        );
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to fetch playlist');
+        }
+        
+        const data = await response.json();
+        const tracks = data.tracks;
+        
+        if (!tracks || tracks.length === 0) {
+            throw new Error('No tracks found in playlist');
+        }
+        
+        if (songCount + tracks.length > 100) {
+            throw new Error(`You can only add up to 100 songs. This playlist has ${tracks.length} songs.`);
+        }
+        
+        for (let i = 0; i < tracks.length; i++) {
+            const track = tracks[i];
+            loadingMessage.textContent = `Importing song ${i + 1} of ${tracks.length}...`;
+            
+            try {
+                await addSpotifySong(track);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error(`Error importing track ${track.title}:`, error);
+                loadingMessage.textContent = `Warning: Failed to import "${track.title}". Continuing with next song...`;
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+        
+        loadingMessage.textContent = 'Playlist import complete!';
+        loadingMessage.style.color = '#4CAF50';
+        setTimeout(() => loadingMessage.remove(), 5000);
+        
+    } catch (error) {
+        console.error('Error importing playlist:', error);
+        loadingMessage.textContent = `Error: ${error.message}`;
+        loadingMessage.style.color = '#f44336';
+        setTimeout(() => loadingMessage.remove(), 5000);
+    } finally {
+        spotifyLoading.classList.remove('active');
+    }
+}
+
+// Form Submission
 async function handleSubmit(e) {
     e.preventDefault();
 
@@ -497,32 +499,7 @@ async function handleSubmit(e) {
     }
 }
 
-// Optimized URL checking code
-const customUrlCheckbox = document.getElementById('custom-url-checkbox');
-const customUrlField = document.getElementById('custom-url-field');
-const customUrlInput = document.getElementById('custom-url');
-const urlStatus = document.querySelector('.url-status');
-let urlCheckTimeout;
-let lastCheckedUrl = '';
-
-customUrlCheckbox.addEventListener('change', (e) => {
-    if (e.target.checked) {
-        customUrlField.classList.add('active');
-        customUrlInput.setAttribute('required', 'required');
-        const currentUrl = customUrlInput.value.trim();
-        if (currentUrl && currentUrl !== lastCheckedUrl) {
-            checkUrlAvailability(currentUrl);
-        }
-    } else {
-        customUrlField.classList.remove('active');
-        customUrlInput.removeAttribute('required');
-        customUrlInput.value = '';
-        urlStatus.className = 'url-status';
-        urlStatus.style.display = 'none';
-        lastCheckedUrl = '';
-    }
-});
-
+// URL Availability Checking
 async function checkUrlAvailability(url) {
     urlStatus.className = 'url-status';
     urlStatus.style.display = 'none';
@@ -561,6 +538,25 @@ async function checkUrlAvailability(url) {
         lastCheckedUrl = '';
     }
 }
+
+// Event Listeners
+customUrlCheckbox.addEventListener('change', (e) => {
+    if (e.target.checked) {
+        customUrlField.classList.add('active');
+        customUrlInput.setAttribute('required', 'required');
+        const currentUrl = customUrlInput.value.trim();
+        if (currentUrl && currentUrl !== lastCheckedUrl) {
+            checkUrlAvailability(currentUrl);
+        }
+    } else {
+        customUrlField.classList.remove('active');
+        customUrlInput.removeAttribute('required');
+        customUrlInput.value = '';
+        urlStatus.className = 'url-status';
+        urlStatus.style.display = 'none';
+        lastCheckedUrl = '';
+    }
+});
 
 customUrlInput.addEventListener('input', (e) => {
     const url = e.target.value.trim();
@@ -609,3 +605,20 @@ document.addEventListener('click', (e) => {
 
 document.querySelector('.add-song').addEventListener('click', addManualSong);
 document.getElementById('playlist-form').addEventListener('submit', handleSubmit);
+
+// Spotify Playlist Import Event Listener
+document.querySelector('.import-playlist')?.addEventListener('click', () => {
+    const playlistUrl = document.querySelector('.spotify-input').value.trim();
+    if (!playlistUrl) {
+        alert('Please enter a Spotify playlist URL');
+        return;
+    }
+    
+    const spotifyUrlRegex = /^https:\/\/open\.spotify\.com\/playlist\/[a-zA-Z0-9]+(\?.*)?$/;
+    if (!spotifyUrlRegex.test(playlistUrl)) {
+        alert('Please enter a valid Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)');
+        return;
+    }
+    
+    importSpotifyPlaylist(playlistUrl);
+});
