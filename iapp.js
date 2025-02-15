@@ -503,8 +503,10 @@ async function handleSubmit(e) {
 async function checkUrlAvailability(url) {
     urlStatus.className = 'url-status';
     urlStatus.style.display = 'none';
-
-    if (!url || !/^[a-zA-Z0-9]+$/.test(url)) {
+    if (!url || url.length < 3 || !/^[a-zA-Z0-9]+$/.test(url)) {
+        urlStatus.style.display = 'block';
+        urlStatus.textContent = 'URL must be at least 3 characters long and contain only letters and numbers';
+        urlStatus.className = 'url-status unavailable';
         return;
     }
 
@@ -539,6 +541,7 @@ async function checkUrlAvailability(url) {
     }
 }
 
+
 // Event Listeners
 customUrlCheckbox.addEventListener('change', (e) => {
     if (e.target.checked) {
@@ -567,15 +570,18 @@ customUrlInput.addEventListener('input', (e) => {
 
     urlStatus.className = 'url-status';
     urlStatus.style.display = 'none';
-
-    if (url && url !== lastCheckedUrl) {
+    if (url && url.length >= 3 && url !== lastCheckedUrl) {
         urlCheckTimeout = setTimeout(() => checkUrlAvailability(url), 500);
+    } else if (url.length > 0 && url.length < 3) {
+        urlStatus.style.display = 'block';
+        urlStatus.textContent = 'URL must be at least 3 characters long';
+        urlStatus.className = 'url-status unavailable';
     }
 });
 
 customUrlInput.addEventListener('blur', (e) => {
     const url = e.target.value.trim();
-    if (url && url !== lastCheckedUrl) {
+    if (url && url.length >= 3 && url !== lastCheckedUrl) {
         checkUrlAvailability(url);
     }
 });
