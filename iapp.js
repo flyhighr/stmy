@@ -51,7 +51,12 @@ function parseTimeToSeconds(timeString) {
 
 async function importSpotifyPlaylist(playlistUrl) {
     const spotifyLoading = document.querySelector('.spotify-loading');
+    const loadingMessage = document.createElement('div');
+    loadingMessage.className = 'import-status';
+    document.querySelector('.spotify-container').appendChild(loadingMessage);
+    
     spotifyLoading.classList.add('active');
+    loadingMessage.textContent = 'Fetching playlist...';
     
     try {
         const response = await fetch(
@@ -59,40 +64,44 @@ async function importSpotifyPlaylist(playlistUrl) {
         );
         
         if (!response.ok) {
-            throw new Error('Failed to fetch playlist');
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Failed to fetch playlist');
         }
         
         const data = await response.json();
         const tracks = data.tracks;
         
-        if (tracks.length === 0) {
-            alert('No tracks found in playlist');
-            return;
+        if (!tracks || tracks.length === 0) {
+            throw new Error('No tracks found in playlist');
         }
         
         if (songCount + tracks.length > 100) {
-            alert(`You can only add up to 100 songs. This playlist has ${tracks.length} songs.`);
-            return;
+            throw new Error(`You can only add up to 100 songs. This playlist has ${tracks.length} songs.`);
         }
-        
-        const loadingMessage = document.createElement('div');
-        loadingMessage.className = 'import-status';
-        loadingMessage.textContent = 'Importing songs...';
-        document.querySelector('.spotify-container').appendChild(loadingMessage);
         
         for (let i = 0; i < tracks.length; i++) {
             const track = tracks[i];
             loadingMessage.textContent = `Importing song ${i + 1} of ${tracks.length}...`;
-            await addSpotifySong(track);
-            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            try {
+                await addSpotifySong(track);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            } catch (error) {
+                console.error(`Error importing track ${track.title}:`, error);
+                loadingMessage.textContent = `Warning: Failed to import "${track.title}". Continuing with next song...`;
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
         }
         
         loadingMessage.textContent = 'Playlist import complete!';
-        setTimeout(() => loadingMessage.remove(), 3000);
+        loadingMessage.style.color = '#4CAF50';
+        setTimeout(() => loadingMessage.remove(), 5000);
         
     } catch (error) {
         console.error('Error importing playlist:', error);
-        alert('Failed to import playlist. Please try again.');
+        loadingMessage.textContent = `Error: ${error.message}`;
+        loadingMessage.style.color = '#f44336';
+        setTimeout(() => loadingMessage.remove(), 5000);
     } finally {
         spotifyLoading.classList.remove('active');
     }
@@ -105,8 +114,9 @@ document.querySelector('.import-playlist')?.addEventListener('click', () => {
         return;
     }
     
-    if (!playlistUrl.includes('spotify.com/playlist/')) {
-        alert('Please enter a valid Spotify playlist URL');
+    const spotifyUrlRegex = /^https:\/\/open\.spotify\.com\/playlist\/[a-zA-Z0-9]+(\?.*)?$/;
+    if (!spotifyUrlRegex.test(playlistUrl)) {
+        alert('Please enter a valid Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)');
         return;
     }
     
