@@ -418,11 +418,16 @@ function initializeViewer() {
 function initializeCardListeners() {
     const cardsContainer = document.getElementById('cards-container');
     
+    // Use a flag to prevent multiple swipes at once
+    let isProcessingTouch = false;
+    
     cardsContainer.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
+        touchEndX = touchStartX; // Initialize touchEndX to prevent undefined behavior
     }, { passive: true });
 
     cardsContainer.addEventListener('touchmove', (e) => {
+        if (isProcessingTouch) return;
         touchEndX = e.touches[0].clientX;
         const diff = touchStartX - touchEndX;
         
@@ -437,15 +442,23 @@ function initializeCardListeners() {
     }, { passive: false });
 
     cardsContainer.addEventListener('touchend', () => {
+        if (isProcessingTouch) return;
         const diff = touchStartX - touchEndX;
         const threshold = 50;
 
         if (Math.abs(diff) > threshold) {
+            isProcessingTouch = true;
+            
             if (diff > 0) {
                 nextSong();
             } else {
                 prevSong();
             }
+            
+            // Reset the flag after navigation completes
+            setTimeout(() => {
+                isProcessingTouch = false;
+            }, 500);
         }
     });
 
@@ -462,7 +475,6 @@ function initializeCardListeners() {
     });
     
     // Card navigation buttons
-        // Card navigation buttons
     const cardPrevBtn = document.getElementById('card-prev');
     const cardNextBtn = document.getElementById('card-next');
     
@@ -1115,8 +1127,16 @@ function loadSavedVolume() {
     }
 }
 
+function detectiOS() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+        document.body.classList.add('ios-device');
+    }
+}
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    detectiOS();
     loadSavedTheme();
     loadSavedVolume();
     fetchPlaylist();
@@ -1151,6 +1171,80 @@ function checkBrowserCompatibility() {
     }
 }
 
+function improveMobileButtonResponsiveness() {
+    // Add touchstart event listeners for better mobile response
+    const touchButtons = [
+        document.getElementById('pause'),
+        document.getElementById('next'),
+        document.getElementById('prev'),
+        document.querySelectorAll('.mobile-control-btn')
+    ];
+    
+    // Handle the play/pause button
+    const pauseButton = document.getElementById('pause');
+    if (pauseButton) {
+        // Remove existing click event listeners
+        const newPauseButton = pauseButton.cloneNode(true);
+        pauseButton.parentNode.replaceChild(newPauseButton, pauseButton);
+        
+        // Add both click and touchstart events
+        newPauseButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            togglePlay();
+        });
+        
+        newPauseButton.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            togglePlay();
+        }, { passive: false });
+    }
+    
+    // Handle next button
+    const nextButton = document.getElementById('next');
+    if (nextButton) {
+        const newNextButton = nextButton.cloneNode(true);
+        nextButton.parentNode.replaceChild(newNextButton, nextButton);
+        
+        newNextButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            nextSong();
+        });
+        
+        newNextButton.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            nextSong();
+        }, { passive: false });
+    }
+    
+    // Handle prev button
+    const prevButton = document.getElementById('prev');
+    if (prevButton) {
+        const newPrevButton = prevButton.cloneNode(true);
+        prevButton.parentNode.replaceChild(newPrevButton, prevButton);
+        
+        newPrevButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            prevSong();
+        });
+        
+        newPrevButton.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            prevSong();
+        }, { passive: false });
+    }
+    
+    // Add a small delay to prevent double triggering
+    document.querySelectorAll('.control-btn, .mobile-control-btn').forEach(btn => {
+        btn.addEventListener('touchstart', function(e) {
+            // Add a class to show it's being touched
+            this.classList.add('button-touched');
+            setTimeout(() => {
+                this.classList.remove('button-touched');
+            }, 300);
+        });
+    });
+}
+
 // Check for browser compatibility on load
 window.addEventListener('load', checkBrowserCompatibility);
 
@@ -1160,3 +1254,5 @@ window.addEventListener('error', function(e) {
         showNotification('YouTube API error. Please try refreshing the page.');
     }
 });
+
+improveMobileButtonResponsiveness();
