@@ -294,12 +294,16 @@ svg {
     transform-style: preserve-3d;
     box-shadow: 0 10px 20px var(--card-shadow);
     background: var(--card-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .card img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     pointer-events: none;
     transition: transform 0.3s ease;
 }
@@ -490,11 +494,34 @@ svg {
     border-radius: 50%;
     color: var(--primary-bg) !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 .play-pause-btn:hover {
     background: var(--button-hover);
     transform: scale(1.05) !important;
+}
+
+/* Make sure the icons inside are visible */
+.play-pause-btn svg {
+    stroke: currentColor;
+    fill: none;
+    width: 24px;
+    height: 24px;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.play-icon, .pause-icon {
+    visibility: visible !important;
+}
+
+.play-icon.hidden, .pause-icon.hidden {
+    display: none !important;
 }
 
 #prev, #next {
@@ -804,7 +831,6 @@ svg {
     border-radius: 10px;
 }
 
-/* Timed Messages */
 /* Timed Messages */
 #timed-messages-container {
     position: fixed;
@@ -1168,6 +1194,25 @@ svg {
     100% { transform: translateY(-30px); opacity: 0; }
 }
 
+/* Visual feedback for button touches */
+.button-touched {
+    transform: scale(0.95) !important;
+    opacity: 0.8 !important;
+}
+
+/* Improve touch areas and prevent accidental touches */
+.control-btn, .mobile-control-btn, .play-pause-btn, #prev, #next {
+    touch-action: manipulation;
+}
+
+/* Fix for iOS Safari issues */
+.ios-device .play-pause-btn svg,
+.ios-device .control-btn svg,
+.ios-device #prev svg,
+.ios-device #next svg {
+    pointer-events: none;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .desktop-only {
@@ -1185,6 +1230,27 @@ svg {
     .cards {
         width: 250px;
         height: 250px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .card {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    
+    .card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
     }
     
     .title {
@@ -1199,16 +1265,41 @@ svg {
     
     .controls {
         gap: 1rem;
+        padding: 15px 0;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    
+    /* Improve tap target size for mobile buttons */
+    .controls button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 10px;
+        margin: 0 5px;
     }
     
     .play-pause-btn {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
+        z-index: 5;
     }
     
     #prev, #next {
         width: 40px;
         height: 40px;
+    }
+    
+    /* Add some space around the song info to improve readability */
+    .song-info {
+        padding: 0 10px;
+        margin: 15px 0;
+    }
+    
+    /* Fix progress bar touch area */
+    .progress-bar {
+        height: 12px;
+        margin: 15px 0;
     }
 
     #timed-messages-container {
