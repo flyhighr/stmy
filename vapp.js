@@ -45,62 +45,130 @@ function loadSavedTheme() {
 }
 
 // Mobile menu handling
+// Replace your existing setupMobileMenu function with this improved version
 function setupMobileMenu() {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
     const mobileMenuPanel = document.querySelector('.mobile-menu-panel');
     
-    mobileMenuBtn.addEventListener('click', () => {
+    // Remove any existing event listeners (to prevent duplicates)
+    const newMobileMenuBtn = mobileMenuBtn.cloneNode(true);
+    mobileMenuBtn.parentNode.replaceChild(newMobileMenuBtn, mobileMenuBtn);
+    
+    const newCloseMenuBtn = closeMobileMenuBtn.cloneNode(true);
+    closeMobileMenuBtn.parentNode.replaceChild(newCloseMenuBtn, closeMobileMenuBtn);
+    
+    // Add multiple event types for better responsiveness
+    newMobileMenuBtn.addEventListener('click', openMenu);
+    newMobileMenuBtn.addEventListener('touchend', openMenu);
+    
+    newCloseMenuBtn.addEventListener('click', closeMenu);
+    newCloseMenuBtn.addEventListener('touchend', closeMenu);
+    
+    // Event handler functions
+    function openMenu(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling
         mobileMenuPanel.classList.add('active');
         isMobileMenuOpen = true;
-    });
+        
+        // Add visual feedback
+        this.classList.add('button-active');
+        setTimeout(() => {
+            this.classList.remove('button-active');
+        }, 200);
+    }
     
-    closeMobileMenuBtn.addEventListener('click', () => {
+    function closeMenu(e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling
         mobileMenuPanel.classList.remove('active');
         isMobileMenuOpen = false;
-    });
+        
+        // Add visual feedback
+        this.classList.add('button-active');
+        setTimeout(() => {
+            this.classList.remove('button-active');
+        }, 200);
+    }
     
-    // Setup mobile controls
-    document.getElementById('mobile-shuffle').addEventListener('click', () => {
-        toggleShuffle();
-        updateMobileMenuButtons();
-    });
+    // Setup mobile controls with improved responsiveness
+    const mobileControls = [
+        { id: 'mobile-shuffle', action: toggleShuffle },
+        { id: 'mobile-repeat', action: toggleRepeat },
+        { id: 'mobile-favorite', action: toggleFavorite },
+        { id: 'mobile-share', action: () => {
+            mobileMenuPanel.classList.remove('active');
+            isMobileMenuOpen = false;
+            document.getElementById('share-modal').classList.add('active');
+        }},
+        { id: 'mobile-fullscreen', action: () => {
+            mobileMenuPanel.classList.remove('active');
+            isMobileMenuOpen = false;
+            toggleFullscreen();
+        }}
+    ];
     
-    document.getElementById('mobile-repeat').addEventListener('click', () => {
-        toggleRepeat();
-        updateMobileMenuButtons();
-    });
-    
-    document.getElementById('mobile-favorite').addEventListener('click', () => {
-        toggleFavorite();
-        updateMobileMenuButtons();
-    });
-    
-    document.getElementById('mobile-share').addEventListener('click', () => {
-        mobileMenuPanel.classList.remove('active');
-        isMobileMenuOpen = false;
-        document.getElementById('share-modal').classList.add('active');
-    });
-    
-    document.getElementById('mobile-fullscreen').addEventListener('click', () => {
-        mobileMenuPanel.classList.remove('active');
-        isMobileMenuOpen = false;
-        toggleFullscreen();
+    mobileControls.forEach(control => {
+        const element = document.getElementById(control.id);
+        if (element) {
+            const newElement = element.cloneNode(true);
+            element.parentNode.replaceChild(newElement, element);
+            
+            newElement.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                control.action();
+                updateMobileMenuButtons();
+                
+                // Add visual feedback
+                this.classList.add('button-active');
+                setTimeout(() => {
+                    this.classList.remove('button-active');
+                }, 200);
+            });
+            
+            // Add touchend for better mobile response
+            newElement.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                control.action();
+                updateMobileMenuButtons();
+                
+                // Add visual feedback
+                this.classList.add('button-active');
+                setTimeout(() => {
+                    this.classList.remove('button-active');
+                }, 200);
+            });
+        }
     });
     
     // Mobile volume slider
     const mobileVolumeSlider = document.getElementById('mobile-volume-slider');
-    mobileVolumeSlider.value = volume;
+    if (mobileVolumeSlider) {
+        mobileVolumeSlider.value = volume;
+        
+        mobileVolumeSlider.addEventListener('input', (e) => {
+            setVolume(e.target.value);
+        });
+    }
     
-    mobileVolumeSlider.addEventListener('input', (e) => {
-        setVolume(e.target.value);
-    });
-    
-    // Close when clicking outside
+    // Close when clicking outside - improve this to be more responsive
     document.addEventListener('click', (e) => {
         if (isMobileMenuOpen && 
             !mobileMenuPanel.contains(e.target) && 
-            e.target !== mobileMenuBtn) {
+            !newMobileMenuBtn.contains(e.target)) {
+            mobileMenuPanel.classList.remove('active');
+            isMobileMenuOpen = false;
+        }
+    });
+    
+    // Add touchend listener for better mobile response
+    document.addEventListener('touchend', (e) => {
+        if (isMobileMenuOpen && 
+            !mobileMenuPanel.contains(e.target) && 
+            !newMobileMenuBtn.contains(e.target)) {
             mobileMenuPanel.classList.remove('active');
             isMobileMenuOpen = false;
         }
@@ -1134,6 +1202,31 @@ function detectiOS() {
     }
 }
 
+function improveButtonResponseTime() {
+    // Apply to all buttons
+    document.querySelectorAll('button').forEach(button => {
+        // Reduce touch delay
+        button.style.touchAction = 'manipulation';
+        
+        // Add touchstart listener for immediate feedback
+        button.addEventListener('touchstart', function(e) {
+            // Don't add this to elements with existing listeners
+            if (this.dataset.hasTouchListener) return;
+            
+            this.classList.add('button-active');
+            // Mark as having a listener to prevent duplicates
+            this.dataset.hasTouchListener = 'true';
+        }, { passive: true });
+        
+        // Remove feedback on touch end
+        button.addEventListener('touchend', function() {
+            this.classList.remove('button-active');
+        }, { passive: true });
+    });
+}
+
+
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     detectiOS();
@@ -1142,6 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchPlaylist();
     setupEventListeners();
     checkFavoriteStatus();
+    improveButtonResponseTime();
 });
 
 // Check for browser compatibility
