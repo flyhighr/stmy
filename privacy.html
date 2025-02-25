@@ -8,50 +8,152 @@
     <link rel="stylesheet" href="istyle.css" />
 </head>
 <body>
-    <nav class="site-nav">
-        <div class="nav-links">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="how.html" class="nav-link">How It Works</a>
+    <div class="app-wrapper">
+        <nav class="site-nav">
+            <div class="logo">
+                <span>Songify</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="how.html" class="nav-link">How It Works</a>
+            </div>
+        </nav>
+        
+        <div class="hero-section">
+            <h1>Privacy Policy</h1>
+            <p class="intro-text">We value your privacy and are committed to protecting your data.</p>
         </div>
-    </nav>
-    <div class="container">
-        <h1>Privacy Policy</h1>
-        <div class="content-section">
-            <h2>Information We Collect</h2>
-            <p>When you create a playlist, we collect and store:</p>
-            <ul class="privacy-list">
-                <li>The sender name you provide</li>
-                <li>Your welcome message</li>
-                <li>Song information (titles, artists, URLs)</li>
-                <li>Timed messages you add to songs</li>
-            </ul>
-            <p>We do not collect any personal information beyond what you explicitly provide for your playlist.</p>
+
+        <div class="container">
+            <div class="form-card privacy-card">
+                <h2 class="section-title">Information We Collect</h2>
+                <p>When you create a playlist, we collect and store:</p>
+                <ul class="privacy-list">
+                    <li>The sender name you provide</li>
+                    <li>Your welcome message</li>
+                    <li>Song information (titles, artists, URLs)</li>
+                    <li>Timed messages you add to songs</li>
+                </ul>
+                <p>We do not collect any personal information beyond what you explicitly provide for your playlist.</p>
+            </div>
             
-            <h2>How We Use Your Information</h2>
-            <p>The information you provide is used solely to:</p>
-            <ul class="privacy-list">
-                <li>Create and display your playlist</li>
-                <li>Enable sharing through your custom URL</li>
-                <li>Improve our service quality</li>
-            </ul>
+            <div class="form-card privacy-card">
+                <h2 class="section-title">How We Use Your Information</h2>
+                <p>The information you provide is used solely to:</p>
+                <ul class="privacy-list">
+                    <li>Create and display your playlist</li>
+                    <li>Enable sharing through your custom URL</li>
+                    <li>Improve our service quality</li>
+                </ul>
+            </div>
             
-            <h2>Information Sharing</h2>
-            <p>We do not sell or share your information with third parties. Your playlist is only accessible to people who have the direct link.</p>
+            <div class="form-card privacy-card">
+                <h2 class="section-title">Information Sharing</h2>
+                <p>We do not sell or share your information with third parties. Your playlist is only accessible to people who have the direct link.</p>
+                
+                <h3>Data Storage</h3>
+                <p>Your playlist data is stored securely on our servers. We retain this information only as long as necessary to provide the service.</p>
+            </div>
             
-            <h2>Data Storage</h2>
-            <p>Your playlist data is stored securely on our servers. We retain this information only as long as necessary to provide the service.</p>
+            <div class="form-card privacy-card">
+                <h2 class="section-title">Third-Party Services</h2>
+                <p>Our service integrates with:</p>
+                <ul class="privacy-list">
+                    <li>
+                        <strong>Spotify</strong> - For song search and playlist imports
+                        <span class="service-note">When using Spotify features, their privacy policy may apply.</span>
+                    </li>
+                    <li>
+                        <strong>YouTube</strong> - For playing music
+                        <span class="service-note">When videos are played, YouTube's privacy policy may apply.</span>
+                    </li>
+                </ul>
+            </div>
             
-            <h2>Third-Party Services</h2>
-            <p>Our service integrates with:</p>
-            <ul class="privacy-list">
-                <li>Spotify (for song search and playlist imports)</li>
-                <li>YouTube (for playing music)</li>
-            </ul>
-            <p>When using these features, you may be subject to their respective privacy policies.</p>
-            
-            <h2>Contact Us</h2>
-            <p>If you have any questions about our privacy policy or how we handle your data, please contact us.</p>
+            <div class="form-card contact-card">
+                <h2 class="section-title">Contact Us</h2>
+                <p>If you have any questions about our privacy policy or how we handle your data, please contact us.</p>
+                
+                <div class="contact-details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <span>support@songifyapp.com</span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <style>
+        .privacy-list {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 30px;
+        }
+        
+        .privacy-list li {
+            position: relative;
+            padding: 12px 15px 12px 35px;
+            margin-bottom: 10px;
+            background: var(--background-alt);
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+        }
+        
+        .privacy-list li:before {
+            content: "•";
+            color: var(--theme-sage);
+            position: absolute;
+            left: 15px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .privacy-list li:hover {
+            transform: translateX(5px);
+            background: var(--theme-sage-light);
+        }
+        
+        .privacy-card h3 {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+        }
+        
+        .service-note {
+            display: block;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            color: var(--text-secondary);
+            padding-left: 0;
+        }
+        
+        .contact-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 15px;
+            background: var(--theme-sage-light);
+            border-radius: var(--border-radius-sm);
+            color: var(--text-primary);
+        }
+        
+        .contact-details svg {
+            color: var(--theme-sage-dark);
+        }
+        
+        @media (max-width: 768px) {
+            .privacy-list li {
+                padding: 10px 10px 10px 30px;
+            }
+            
+            .privacy-list li:before {
+                left: 10px;
+            }
+        }
+    </style>
 </body>
 </html>
