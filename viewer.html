@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="vstyle.css" />
 </head>
 <body>
-    <div class="theme-selector">
+    <div class="theme-selector desktop-only">
         <button class="theme-btn active" id="theme-sage" data-theme="sage" aria-label="Sage theme"></button>
         <button class="theme-btn" id="theme-daisy" data-theme="daisy" aria-label="Daisy theme"></button>
         <button class="theme-btn" id="theme-purple" data-theme="purple" aria-label="Purple theme"></button>
@@ -18,7 +18,7 @@
         <button class="theme-btn" id="theme-dark" data-theme="dark" aria-label="Dark theme"></button>
     </div>
     
-    <div class="extra-controls">
+    <div class="extra-controls desktop-only">
         <button id="volume-btn" class="control-btn" aria-label="Volume">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
@@ -52,6 +52,99 @@
             </svg>
         </button>
     </div>
+
+    <!-- Mobile Menu Button -->
+    <div class="mobile-menu-toggle mobile-only">
+        <button id="mobile-menu-btn" aria-label="More options">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Panel -->
+    <div class="mobile-menu-panel">
+        <div class="mobile-menu-header">
+            <h3>Options</h3>
+            <button id="close-mobile-menu" aria-label="Close menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-section">
+                <h4>Theme</h4>
+                <div class="mobile-theme-selector">
+                    <button class="theme-btn active" id="mobile-theme-sage" data-theme="sage" aria-label="Sage theme"></button>
+                    <button class="theme-btn" id="mobile-theme-daisy" data-theme="daisy" aria-label="Daisy theme"></button>
+                    <button class="theme-btn" id="mobile-theme-purple" data-theme="purple" aria-label="Purple theme"></button>
+                    <button class="theme-btn" id="mobile-theme-ocean" data-theme="ocean" aria-label="Ocean theme"></button>
+                    <button class="theme-btn" id="mobile-theme-dark" data-theme="dark" aria-label="Dark theme"></button>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <h4>Controls</h4>
+                <div class="mobile-controls">
+                    <button id="mobile-shuffle" class="mobile-control-btn" aria-label="Shuffle">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 3 21 3 21 8"></polyline>
+                            <line x1="4" y1="20" x2="21" y2="3"></line>
+                            <polyline points="21 16 21 21 16 21"></polyline>
+                            <line x1="15" y1="15" x2="21" y2="21"></line>
+                            <line x1="4" y1="4" x2="9" y2="9"></line>
+                        </svg>
+                        <span>Shuffle</span>
+                    </button>
+                    <button id="mobile-repeat" class="mobile-control-btn" aria-label="Repeat">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="17 1 21 5 17 9"></polyline>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                            <polyline points="7 23 3 19 7 15"></polyline>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                        </svg>
+                        <span>Repeat</span>
+                    </button>
+                    <button id="mobile-favorite" class="mobile-control-btn" aria-label="Favorite">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                        <span>Favorite</span>
+                    </button>
+                    <button id="mobile-share" class="mobile-control-btn" aria-label="Share">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle>
+                            <circle cx="6" cy="12" r="3"></circle>
+                            <circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                        <span>Share</span>
+                    </button>
+                    <button id="mobile-fullscreen" class="mobile-control-btn" aria-label="Fullscreen">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fullscreen-icon">
+                            <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                            <path d="M21 8V5a2 2 0 0 0-2-2h-3"></path>
+                            <path d="M3 16v3a2 2 0 0 0 2 2h3"></path>
+                            <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                        </svg>
+                        <span>Fullscreen</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mobile-menu-section">
+                <h4>Volume</h4>
+                <div class="mobile-volume-control">
+                    <input type="range" id="mobile-volume-slider" min="0" max="100" value="100">
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="welcome-screen">
         <div class="welcome-content">
@@ -77,7 +170,7 @@
         
         <div class="cards-container">
             <div class="cards" id="cards-container"></div>
-            <div class="cards-navigation">
+            <div class="cards-navigation desktop-only">
                 <button id="card-prev" class="card-nav-btn" aria-label="Previous card">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="15 18 9 12 15 6"></polyline>
@@ -95,9 +188,9 @@
         <div id="song-info-container"></div>
 
         <div class="controls">
-            <button id="shuffle" class="control-secondary" aria-label="Shuffle">
+            <button id="shuffle" class="control-secondary desktop-only" aria-label="Shuffle">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="16 3 21 3 21 8"></polyline>
+                                        <polyline points="16 3 21 3 21 8"></polyline>
                     <line x1="4" y1="20" x2="21" y2="3"></line>
                     <polyline points="21 16 21 21 16 21"></polyline>
                     <line x1="15" y1="15" x2="21" y2="21"></line>
@@ -125,7 +218,7 @@
                     <line x1="19" y1="5" x2="19" y2="19"></line>
                 </svg>
             </button>
-            <button id="repeat" class="control-secondary" aria-label="Repeat">
+            <button id="repeat" class="control-secondary desktop-only" aria-label="Repeat">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="17 1 21 5 17 9"></polyline>
                     <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
@@ -135,7 +228,7 @@
             </button>
         </div>
         
-        <div class="playlist-overview">
+        <div class="playlist-overview desktop-only">
             <button id="playlist-toggle" class="playlist-toggle-btn">
                 <span>Show Playlist</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
