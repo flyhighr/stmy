@@ -8,79 +8,133 @@
     <link rel="stylesheet" href="istyle.css" />
 </head>
 <body>
-    <nav class="site-nav">
-        <div class="nav-links">
-            <a href="how.html" class="nav-link">How</a>
-            <a href="privacy.html" class="nav-link">Privacy Policy</a>
-        </div>
-    </nav>
-    <div class="container">
-        <h1>Create Your Special Playlist</h1>
-        <p class="intro-text">Share your favorite songs with someone special. Create a unique playlist with your personal message and let the music speak for you. 🎵</p>
+    <div class="app-wrapper">
+        <nav class="site-nav">
+            <div class="logo">
+                <span>Songify</span>
+            </div>
+            <div class="nav-links">
+                <a href="how.html" class="nav-link">How It Works</a>
+                <a href="privacy.html" class="nav-link">Privacy Policy</a>
+            </div>
+        </nav>
 
-        <form id="playlist-form">
-            <div class="form-group">
-                <label for="sender-name">Your Name</label>
-                <input type="text" id="sender-name" placeholder="How you want to appear as the sender" required>
-            </div>
-            <label class="custom-url-toggle">
-                <input type="checkbox" id="custom-url-checkbox">
-                <span>I want to use a custom URL</span>
-            </label>
-            <div class="custom-url-field" id="custom-url-field">
-                <div class="form-group">
-                    <label for="custom-url">Custom URL</label>
-                    <div class="url-field">
-                        <input type="text" id="custom-url" class="url-input" placeholder="Enter a custom URL (letters and numbers only)" pattern="[a-zA-Z0-9]+" minlength="3" maxlength="50">
-                        <span class="url-status"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="welcome-message">Your Message</label>
-                <textarea id="welcome-message" rows="4" placeholder="Write a heartfelt message for your recipient..." required></textarea>
-            </div>
-            <div class="tab-container">
-                <div class="tab active" data-tab="search">Search Songs</div>
-                <div class="tab" data-tab="spotify">Spotify Playlist</div>
-                <div class="tab" data-tab="manual">Manual Entry</div>
-            </div>
-            <div class="input-method active" id="search-method">
-                <div class="search-container">
-                    <input type="text" class="search-input" placeholder="Search for a song...">
-                    <button type="button" class="search-button">Search</button>
-                    <div class="search-results"></div>
-                    <div class="loading">
-                        <div class="spinner"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="input-method" id="spotify-method">
-            <div class="spotify-container">
-                <input type="text" 
-                       class="spotify-input" 
-                       placeholder="Paste Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)">
-                <button type="button" class="import-playlist">Import Playlist</button>
-                <div class="loading spotify-loading">
-                    <div class="spinner"></div>
-                    <span>Importing playlist...</span>
-                </div>
-            </div>
+        <div class="hero-section">
+            <h1>Create Your Special Playlist</h1>
+            <p class="intro-text">Share your favorite songs with someone special. Create a unique playlist with your personal message and let the music speak for you. 🎵</p>
         </div>
-            <div class="input-method" id="manual-method">
-                <button type="button" class="add-song">
-                    <span>Add Song Manually</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="songs-container" id="songs-container">
-                <!-- Song entries will be added here -->
-            </div>
-            <button type="submit" class="submit-playlist">Create Your Playlist ✨</button>
-        </form>
+
+        <div class="container">
+            <form id="playlist-form">
+                <div class="form-card">
+                    <h2 class="section-title">About Your Playlist</h2>
+                    
+                    <div class="form-group">
+                        <label for="sender-name">Your Name</label>
+                        <input type="text" id="sender-name" placeholder="How you want to appear as the sender" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="welcome-message">Your Message</label>
+                        <textarea id="welcome-message" rows="4" placeholder="Write a heartfelt message for your recipient..." required></textarea>
+                    </div>
+                    
+                    <div class="custom-url-toggle">
+                        <input type="checkbox" id="custom-url-checkbox">
+                        <label for="custom-url-checkbox">I want to use a custom URL</label>
+                    </div>
+                    
+                    <div class="custom-url-field" id="custom-url-field">
+                        <div class="form-group">
+                            <label for="custom-url">Custom URL</label>
+                            <div class="url-field">
+                                <input type="text" id="custom-url" class="url-input" 
+                                       placeholder="Enter a custom URL (letters and numbers only)" 
+                                       pattern="[a-zA-Z0-9]+" minlength="3" maxlength="50">
+                                <span class="url-status"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h2 class="section-title">Add Your Songs</h2>
+                    
+                    <div class="tab-container">
+                        <div class="tab active" data-tab="search">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            Search Songs
+                        </div>
+                        <div class="tab" data-tab="spotify">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12a4 4 0 0 1 8 0"></path><path d="M10 9a2 2 0 0 1 4 0"></path><path d="M9 15a3 3 0 0 1 6 0"></path></svg>
+                            Spotify Playlist
+                        </div>
+                        <div class="tab" data-tab="manual">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Manual Entry
+                        </div>
+                    </div>
+
+                    <div class="input-method active" id="search-method">
+                        <div class="search-container">
+                            <div class="search-field">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                <input type="text" class="search-input" placeholder="Search for a song...">
+                                <button type="button" class="search-button">Search</button>
+                            </div>
+                            <div class="search-results"></div>
+                            <div class="loading">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-method" id="spotify-method">
+                        <div class="spotify-container">
+                            <div class="spotify-field">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12a4 4 0 0 1 8 0"></path><path d="M10 9a2 2 0 0 1 4 0"></path><path d="M9 15a3 3 0 0 1 6 0"></path></svg>
+                                <input type="text" class="spotify-input" 
+                                       placeholder="Paste Spotify playlist URL (e.g., https://open.spotify.com/playlist/...)">
+                            </div>
+                            <button type="button" class="import-playlist">Import Playlist</button>
+                            <div class="loading spotify-loading">
+                                <div class="spinner"></div>
+                                <span>Importing playlist...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-method" id="manual-method">
+                        <div class="manual-container">
+                            <button type="button" class="add-song">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span>Add Song Manually</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="songs-container-wrapper">
+                    <h2 class="section-title songs-title">Your Playlist <span class="song-count">0 songs</span></h2>
+                    <div class="songs-container" id="songs-container">
+                        <!-- Song entries will be added here -->
+                        <div class="empty-playlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18V5l12-2v13"></path>
+                                <circle cx="6" cy="18" r="3"></circle>
+                                <circle cx="18" cy="16" r="3"></circle>
+                            </svg>
+                            <p>Your playlist is empty. Add songs using one of the methods above.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-playlist">Create Your Playlist ✨</button>
+            </form>
+        </div>
     </div>
     
     <!-- Timed Message Modal Template -->
