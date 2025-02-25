@@ -13,17 +13,19 @@ let isShuffled = false;
 let repeatMode = 'none'; // 'none', 'all', 'one'
 let volume = 100;
 let isVolumeSliderVisible = false;
+let isMobileMenuOpen = false;
 
 // Theme handling
 const themeButtons = document.querySelectorAll('.theme-btn');
 themeButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-        document.body.dataset.theme = btn.dataset.theme;
+        const theme = btn.dataset.theme;
+        document.body.dataset.theme = theme;
         themeButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        document.querySelectorAll(`[data-theme="${theme}"]`).forEach(b => b.classList.add('active'));
         
         // Save theme preference
-        localStorage.setItem('preferredTheme', btn.dataset.theme);
+        localStorage.setItem('preferredTheme', theme);
     });
 });
 
@@ -39,6 +41,130 @@ function loadSavedTheme() {
                 btn.classList.remove('active');
             }
         });
+    }
+}
+
+// Mobile menu handling
+function setupMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+    const mobileMenuPanel = document.querySelector('.mobile-menu-panel');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+        mobileMenuPanel.classList.add('active');
+        isMobileMenuOpen = true;
+    });
+    
+    closeMobileMenuBtn.addEventListener('click', () => {
+        mobileMenuPanel.classList.remove('active');
+        isMobileMenuOpen = false;
+    });
+    
+    // Setup mobile controls
+    document.getElementById('mobile-shuffle').addEventListener('click', () => {
+        toggleShuffle();
+        updateMobileMenuButtons();
+    });
+    
+    document.getElementById('mobile-repeat').addEventListener('click', () => {
+        toggleRepeat();
+        updateMobileMenuButtons();
+    });
+    
+    document.getElementById('mobile-favorite').addEventListener('click', () => {
+        toggleFavorite();
+        updateMobileMenuButtons();
+    });
+    
+    document.getElementById('mobile-share').addEventListener('click', () => {
+        mobileMenuPanel.classList.remove('active');
+        isMobileMenuOpen = false;
+        document.getElementById('share-modal').classList.add('active');
+    });
+    
+    document.getElementById('mobile-fullscreen').addEventListener('click', () => {
+        mobileMenuPanel.classList.remove('active');
+        isMobileMenuOpen = false;
+        toggleFullscreen();
+    });
+    
+    // Mobile volume slider
+    const mobileVolumeSlider = document.getElementById('mobile-volume-slider');
+    mobileVolumeSlider.value = volume;
+    
+    mobileVolumeSlider.addEventListener('input', (e) => {
+        setVolume(e.target.value);
+    });
+    
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (isMobileMenuOpen && 
+            !mobileMenuPanel.contains(e.target) && 
+            e.target !== mobileMenuBtn) {
+            mobileMenuPanel.classList.remove('active');
+            isMobileMenuOpen = false;
+        }
+    });
+}
+
+function updateMobileMenuButtons() {
+    // Update shuffle button
+    const mobileShuffleBtn = document.getElementById('mobile-shuffle');
+    if (isShuffled) {
+        mobileShuffleBtn.classList.add('active');
+    } else {
+        mobileShuffleBtn.classList.remove('active');
+    }
+    
+    // Update repeat button
+    const mobileRepeatBtn = document.getElementById('mobile-repeat');
+    if (repeatMode !== 'none') {
+        mobileRepeatBtn.classList.add('active');
+        if (repeatMode === 'one') {
+            mobileRepeatBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <path d="M12 19v-4"></path>
+                    <path d="M12 15h-3"></path>
+                </svg>
+                <span>Repeat One</span>
+            `;
+        } else {
+            mobileRepeatBtn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+                <span>Repeat All</span>
+            `;
+        }
+    } else {
+        mobileRepeatBtn.classList.remove('active');
+        mobileRepeatBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="17 1 21 5 17 9"></polyline>
+                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                <polyline points="7 23 3 19 7 15"></polyline>
+                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+            <span>Repeat</span>
+        `;
+    }
+    
+    // Update favorite button
+    const mobileFavoriteBtn = document.getElementById('mobile-favorite');
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const customUrl = getCustomUrl();
+    
+    if (favorites.includes(customUrl)) {
+        mobileFavoriteBtn.classList.add('active');
+        mobileFavoriteBtn.querySelector('svg').style.fill = '#ff4444';
+    } else {
+        mobileFavoriteBtn.classList.remove('active');
+        mobileFavoriteBtn.querySelector('svg').style.fill = 'none';
     }
 }
 
@@ -94,6 +220,7 @@ async function fetchPlaylist() {
         setupMessageContainer();
         setupShareOptions();
         initializePlaylistDrawer();
+        setupMobileMenu();
     } catch (error) {
         const storedPlaylist = localStorage.getItem('currentPlaylist');
         if (storedPlaylist) {
@@ -108,6 +235,7 @@ async function fetchPlaylist() {
                 setupMessageContainer();
                 setupShareOptions();
                 initializePlaylistDrawer();
+                setupMobileMenu();
                 return;
             }
         }
@@ -334,8 +462,12 @@ function initializeCardListeners() {
     });
     
     // Card navigation buttons
-    document.getElementById('card-prev').addEventListener('click', prevSong);
-    document.getElementById('card-next').addEventListener('click', nextSong);
+        // Card navigation buttons
+    const cardPrevBtn = document.getElementById('card-prev');
+    const cardNextBtn = document.getElementById('card-next');
+    
+    if (cardPrevBtn) cardPrevBtn.addEventListener('click', prevSong);
+    if (cardNextBtn) cardNextBtn.addEventListener('click', nextSong);
 }
 
 function generateCards() {
@@ -384,6 +516,8 @@ function initializePlaylistDrawer() {
     const playlistToggle = document.getElementById('playlist-toggle');
     const playlistDrawer = document.getElementById('playlist-drawer');
     
+    if (!playlistItems || !playlistCount) return;
+    
     // Set playlist count
     playlistCount.textContent = `${playlist.songs.length} songs`;
     
@@ -413,16 +547,18 @@ function initializePlaylistDrawer() {
     });
     
     // Toggle playlist drawer
-    playlistToggle.addEventListener('click', () => {
-        playlistDrawer.classList.toggle('open');
-        playlistToggle.classList.toggle('active');
-        
-        if (playlistDrawer.classList.contains('open')) {
-            playlistToggle.querySelector('span').textContent = 'Hide Playlist';
-        } else {
-            playlistToggle.querySelector('span').textContent = 'Show Playlist';
-        }
-    });
+    if (playlistToggle && playlistDrawer) {
+        playlistToggle.addEventListener('click', () => {
+            playlistDrawer.classList.toggle('open');
+            playlistToggle.classList.toggle('active');
+            
+            if (playlistDrawer.classList.contains('open')) {
+                playlistToggle.querySelector('span').textContent = 'Hide Playlist';
+            } else {
+                playlistToggle.querySelector('span').textContent = 'Show Playlist';
+            }
+        });
+    }
 }
 
 function updatePlaylistDrawer() {
@@ -563,7 +699,7 @@ function toggleShuffle() {
     isShuffled = !isShuffled;
     
     if (isShuffled) {
-        shuffleButton.classList.add('active');
+        if (shuffleButton) shuffleButton.classList.add('active');
         
         // Create a shuffled copy of the playlist
         const currentSongData = playlist.songs[currentSong];
@@ -595,7 +731,7 @@ function toggleShuffle() {
         
         showNotification('Shuffle enabled');
     } else {
-        shuffleButton.classList.remove('active');
+        if (shuffleButton) shuffleButton.classList.remove('active');
         
         // Restore original playlist order
         playlist.songs = [...originalPlaylist];
@@ -619,6 +755,9 @@ function toggleShuffle() {
         
         showNotification('Shuffle disabled');
     }
+    
+    // Update mobile menu buttons
+    updateMobileMenuButtons();
 }
 
 function toggleRepeat() {
@@ -626,33 +765,42 @@ function toggleRepeat() {
     
     if (repeatMode === 'none') {
         repeatMode = 'all';
-        repeatButton.classList.add('active');
+        if (repeatButton) {
+            repeatButton.classList.add('active');
+        }
         showNotification('Repeat all songs');
     } else if (repeatMode === 'all') {
         repeatMode = 'one';
-        repeatButton.classList.add('active');
-        repeatButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="17 1 21 5 17 9"></polyline>
-                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                <path d="M12 19v-4"></path>
-                <path d="M12 15h-3"></path>
-            </svg>
-        `;
+        if (repeatButton) {
+            repeatButton.classList.add('active');
+            repeatButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <path d="M12 19v-4"></path>
+                    <path d="M12 15h-3"></path>
+                </svg>
+            `;
+        }
         showNotification('Repeat current song');
     } else {
         repeatMode = 'none';
-        repeatButton.classList.remove('active');
-        repeatButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="17 1 21 5 17 9"></polyline>
-                <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
-                <polyline points="7 23 3 19 7 15"></polyline>
-                <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
-            </svg>
-        `;
+        if (repeatButton) {
+            repeatButton.classList.remove('active');
+            repeatButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="17 1 21 5 17 9"></polyline>
+                    <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                    <polyline points="7 23 3 19 7 15"></polyline>
+                    <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg>
+            `;
+        }
         showNotification('Repeat disabled');
     }
+    
+    // Update mobile menu buttons
+    updateMobileMenuButtons();
 }
 
 function nextSong() {
@@ -682,26 +830,42 @@ function prevSong() {
     clearInterval(messageCheckInterval);
     clearAllMessages();
     
-    // If current time is more than 3 seconds, restart the song instead of going to previous
     if (player.getCurrentTime() > 3) {
+        // If more than 3 seconds into the song, restart it
         player.seekTo(0);
-        return;
-    }
-    
-    if (currentSong > 0) {
+    } else if (currentSong > 0) {
+        // Go to previous song
         currentSong--;
+        const videoId = extractVideoId(playlist.songs[currentSong].youtube_url);
+        player.loadVideoById(videoId);
     } else if (repeatMode === 'all') {
+        // If at first song and repeat all is on, go to last song
         currentSong = playlist.songs.length - 1;
-    } else {
-        return;
+        const videoId = extractVideoId(playlist.songs[currentSong].youtube_url);
+        player.loadVideoById(videoId);
     }
     
-    const videoId = extractVideoId(playlist.songs[currentSong].youtube_url);
-    player.loadVideoById(videoId);
     updateSongInfo();
 }
 
-function toggleVolume() {
+function setVolume(value) {
+    volume = value;
+    if (player && player.setVolume) {
+        player.setVolume(volume);
+    }
+    
+    // Update both volume sliders
+    const volumeSlider = document.getElementById('volume-slider');
+    const mobileVolumeSlider = document.getElementById('mobile-volume-slider');
+    
+    if (volumeSlider) volumeSlider.value = volume;
+    if (mobileVolumeSlider) mobileVolumeSlider.value = volume;
+    
+    // Save volume preference
+    localStorage.setItem('preferredVolume', volume);
+}
+
+function toggleVolumeSlider() {
     const volumeSliderContainer = document.getElementById('volume-slider-container');
     isVolumeSliderVisible = !isVolumeSliderVisible;
     
@@ -712,59 +876,52 @@ function toggleVolume() {
     }
 }
 
-function setVolume(value) {
-    volume = value;
-    if (isPlayerReady && player) {
-        player.setVolume(volume);
-    }
-    
-    // Update volume button icon based on level
-    const volumeBtn = document.getElementById('volume-btn');
-    
-    if (volume === 0) {
-        volumeBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <line x1="23" y1="9" x2="17" y2="15"></line>
-                <line x1="17" y1="9" x2="23" y2="15"></line>
-            </svg>
-        `;
-    } else if (volume < 50) {
-        volumeBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-        `;
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            showNotification("Fullscreen not available");
+        });
     } else {
-        volumeBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-        `;
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
     }
 }
 
-function showBrowserNotice() {
-    const popup = document.createElement('div');
-    popup.className = 'browser-popup';
-    popup.innerHTML = `
-        <div class="popup-content">
-            <p>For the best experience:</p>
-            <ol>
-                <li>Tap the three dots (⋮) in the top right</li>
-                <li>Select "Open in browser"</li>
-            </ol>
-            <button id="continue-anyway-btn">Continue Anyway</button>
-        </div>
-    `;
-    document.body.appendChild(popup);
-
-    document.getElementById('continue-anyway-btn').addEventListener('click', () => {
-        popup.remove();
-    });
+function toggleFavorite() {
+    const favoriteBtn = document.getElementById('favorite');
+    const mobileFavoriteBtn = document.getElementById('mobile-favorite');
+    const customUrl = getCustomUrl();
+    
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
+    if (favorites.includes(customUrl)) {
+        // Remove from favorites
+        favorites = favorites.filter(url => url !== customUrl);
+        if (favoriteBtn) {
+            favoriteBtn.classList.remove('favorited');
+            favoriteBtn.querySelector('svg').style.fill = 'none';
+        }
+        if (mobileFavoriteBtn) {
+            mobileFavoriteBtn.classList.remove('active');
+            mobileFavoriteBtn.querySelector('svg').style.fill = 'none';
+        }
+        showNotification('Removed from favorites');
+    } else {
+        // Add to favorites
+        favorites.push(customUrl);
+        if (favoriteBtn) {
+            favoriteBtn.classList.add('favorited');
+            favoriteBtn.querySelector('svg').style.fill = '#ff4444';
+        }
+        if (mobileFavoriteBtn) {
+            mobileFavoriteBtn.classList.add('active');
+            mobileFavoriteBtn.querySelector('svg').style.fill = '#ff4444';
+        }
+        showNotification('Added to favorites');
+    }
+    
+    localStorage.setItem('favorites', JSON.stringify(favorites));
 }
 
 function showNotification(message) {
@@ -779,193 +936,227 @@ function showNotification(message) {
     }, 3000);
 }
 
-function toggleFavorite() {
-    const favoriteButton = document.getElementById('favorite');
-    favoriteButton.classList.toggle('favorited');
-    
-    if (favoriteButton.classList.contains('favorited')) {
-        showNotification('Added to favorites');
-        
-        // Save favorite in localStorage
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        const customUrl = getCustomUrl();
-        
-        if (!favorites.includes(customUrl)) {
-            favorites.push(customUrl);
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-    } else {
-        showNotification('Removed from favorites');
-        
-        // Remove from favorites in localStorage
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        const customUrl = getCustomUrl();
-        const index = favorites.indexOf(customUrl);
-        
-        if (index !== -1) {
-            favorites.splice(index, 1);
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        }
-    }
-}
-
-function checkIfFavorited() {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+function checkFavoriteStatus() {
+    const favoriteBtn = document.getElementById('favorite');
+    const mobileFavoriteBtn = document.getElementById('mobile-favorite');
     const customUrl = getCustomUrl();
     
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    
     if (favorites.includes(customUrl)) {
-        const favoriteButton = document.getElementById('favorite');
-        favoriteButton.classList.add('favorited');
+        if (favoriteBtn) {
+            favoriteBtn.classList.add('favorited');
+            favoriteBtn.querySelector('svg').style.fill = '#ff4444';
+        }
+        if (mobileFavoriteBtn) {
+            mobileFavoriteBtn.classList.add('active');
+            mobileFavoriteBtn.querySelector('svg').style.fill = '#ff4444';
+        }
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Load saved theme
-    loadSavedTheme();
+function setupEventListeners() {
+    // Play/Pause button
+    document.getElementById('pause').addEventListener('click', togglePlay);
     
-    // Check if viewing in Instagram browser
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    if (userAgent.indexOf('Instagram') > -1) {
-        showBrowserNotice();
+    // Next and Previous buttons
+    document.getElementById('next').addEventListener('click', nextSong);
+    document.getElementById('prev').addEventListener('click', prevSong);
+    
+    // Shuffle button
+    const shuffleBtn = document.getElementById('shuffle');
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', toggleShuffle);
     }
     
-    fetchPlaylist();
+    // Repeat button
+    const repeatBtn = document.getElementById('repeat');
+    if (repeatBtn) {
+        repeatBtn.addEventListener('click', toggleRepeat);
+    }
     
-    // Initialize event listeners
-    const pauseButton = document.getElementById('pause');
-    const prevButton = document.getElementById('prev');
-    const nextButton = document.getElementById('next');
-    const favoriteButton = document.getElementById('favorite');
-    const fullscreenButton = document.getElementById('fullscreen-btn');
-    const volumeButton = document.getElementById('volume-btn');
+    // Volume button and slider
+    const volumeBtn = document.getElementById('volume-btn');
     const volumeSlider = document.getElementById('volume-slider');
-    const shuffleButton = document.getElementById('shuffle');
-    const repeatButton = document.getElementById('repeat');
-    const shareButton = document.getElementById('share-btn');
-    const closeShareModal = document.getElementById('close-share-modal');
-
-    document.querySelector('.open-playlist-btn').addEventListener('click', function() {
-        const welcomeScreen = document.querySelector('.welcome-screen');
-        const container = document.querySelector('.container');
+    
+    if (volumeBtn) {
+        volumeBtn.addEventListener('click', toggleVolumeSlider);
+    }
+    
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            setVolume(e.target.value);
+        });
         
-        welcomeScreen.style.opacity = '0';
-        container.style.display = 'flex';
-        container.style.opacity = '1';
-        
-        setTimeout(() => {
-            welcomeScreen.style.display = 'none';
-            try {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log("Fullscreen request failed");
-                });
-            } catch (e) {
-                console.log("Fullscreen API not supported");
+        // Hide volume slider when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isVolumeSliderVisible && 
+                e.target !== volumeBtn && 
+                e.target !== volumeSlider && 
+                !volumeBtn.contains(e.target)) {
+                toggleVolumeSlider();
             }
-        }, 500);
+        });
+    }
+    
+    // Fullscreen button
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const mobilefullscreenBtn = document.getElementById('mobile-fullscreen');
+    
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+    }
+    
+    // Favorite button
+    const favoriteBtn = document.getElementById('favorite');
+    if (favoriteBtn) {
+        favoriteBtn.addEventListener('click', toggleFavorite);
+    }
+    
+    // Share button and modal
+    const shareBtn = document.getElementById('share-btn');
+    const mobileShareBtn = document.getElementById('mobile-share');
+    const shareModal = document.getElementById('share-modal');
+    const closeShareModalBtn = document.getElementById('close-share-modal');
+    
+    if (shareBtn) {
+        shareBtn.addEventListener('click', () => {
+            shareModal.classList.add('active');
+        });
+    }
+    
+    if (mobileShareBtn) {
+        mobileShareBtn.addEventListener('click', () => {
+            shareModal.classList.add('active');
+        });
+    }
+    
+    if (closeShareModalBtn) {
+        closeShareModalBtn.addEventListener('click', () => {
+            shareModal.classList.remove('active');
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === shareModal) {
+            shareModal.classList.remove('active');
+        }
     });
-
+    
+    // Progress bar interaction
     document.querySelectorAll('.progress-bar').forEach(bar => {
         bar.addEventListener('click', (e) => {
             if (!isPlayerReady) return;
             
             const rect = bar.getBoundingClientRect();
             const clickPosition = (e.clientX - rect.left) / rect.width;
-            if (player.getDuration) {
-                const newTime = clickPosition * player.getDuration();
-                player.seekTo(newTime);
-                
-                const progress = (newTime / player.getDuration()) * 100;
-                bar.querySelector('.progress').style.width = `${progress}%`;
-                
-                const songInfo = document.getElementById(`song-info-${currentSong + 1}`);
-                songInfo.querySelector('.elapsed').textContent = formatTime(newTime);
-                songInfo.querySelector('.remaining').textContent = formatTime(player.getDuration() - newTime);
-            }
+            const duration = player.getDuration();
+            
+            player.seekTo(duration * clickPosition);
         });
     });
-
-    pauseButton.addEventListener('click', togglePlay);
-    prevButton.addEventListener('click', prevSong);
-    nextButton.addEventListener('click', nextSong);
     
-    favoriteButton.addEventListener('click', toggleFavorite);
+    // Welcome screen open button
+    const openPlaylistBtn = document.querySelector('.open-playlist-btn');
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    const container = document.querySelector('.container');
     
-    fullscreenButton.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                console.log("Fullscreen request failed");
-            });
-        } else {
-            document.exitFullscreen();
-        }
-    });
+    if (openPlaylistBtn && welcomeScreen && container) {
+        openPlaylistBtn.addEventListener('click', () => {
+            welcomeScreen.style.opacity = '0';
+            container.style.display = 'flex';
+            
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                container.style.opacity = '1';
+            }, 500);
+        });
+    }
     
-    volumeButton.addEventListener('click', toggleVolume);
-    
-    volumeSlider.addEventListener('input', (e) => {
-        setVolume(e.target.value);
-    });
-    
-    // Close volume slider when clicking outside
-    document.addEventListener('click', (e) => {
-        if (isVolumeSliderVisible && e.target !== volumeButton && e.target !== volumeSlider) {
-            isVolumeSliderVisible = false;
-            document.getElementById('volume-slider-container').classList.remove('active');
-        }
-    });
-    
-    shuffleButton.addEventListener('click', toggleShuffle);
-    repeatButton.addEventListener('click', toggleRepeat);
-    
-    // Share modal
-    shareButton.addEventListener('click', () => {
-        document.getElementById('share-modal').classList.add('active');
-    });
-    
-    closeShareModal.addEventListener('click', () => {
-        document.getElementById('share-modal').classList.remove('active');
-    });
-    
-    // Close modal when clicking outside
-    document.getElementById('share-modal').addEventListener('click', (e) => {
-        if (e.target === document.getElementById('share-modal')) {
-            document.getElementById('share-modal').classList.remove('active');
-        }
-    });
-
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        switch(e.key) {
+        if (e.target.tagName === 'INPUT') return;
+        
+        switch (e.key) {
             case ' ':
                 e.preventDefault();
                 togglePlay();
                 break;
-            case 'ArrowLeft':
-                prevSong();
-                break;
             case 'ArrowRight':
                 nextSong();
                 break;
+            case 'ArrowLeft':
+                prevSong();
+                break;
             case 'f':
-                fullscreenButton.click();
+                toggleFullscreen();
                 break;
             case 'm':
                 if (volume > 0) {
-                    volumeSlider.value = 0;
                     setVolume(0);
                 } else {
-                    volumeSlider.value = 100;
                     setVolume(100);
                 }
                 break;
-            case 's':
-                toggleShuffle();
-                break;
-            case 'r':
-                toggleRepeat();
-                break;
         }
     });
+}
+
+function loadSavedVolume() {
+    const savedVolume = localStorage.getItem('preferredVolume');
+    if (savedVolume !== null) {
+        volume = parseInt(savedVolume);
+        const volumeSlider = document.getElementById('volume-slider');
+        const mobileVolumeSlider = document.getElementById('mobile-volume-slider');
+        
+        if (volumeSlider) volumeSlider.value = volume;
+        if (mobileVolumeSlider) mobileVolumeSlider.value = volume;
+    }
+}
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    loadSavedTheme();
+    loadSavedVolume();
+    fetchPlaylist();
+    setupEventListeners();
+    checkFavoriteStatus();
+});
+
+// Check for browser compatibility
+function checkBrowserCompatibility() {
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     
-    // Check if already favorited
-    checkIfFavorited();
+    if (isFirefox || isIOS) {
+        const browserPopup = document.createElement('div');
+        browserPopup.className = 'browser-popup';
+        browserPopup.innerHTML = `
+            <div class="popup-content">
+                <p>For the best experience, please use Chrome, Edge, or Safari (on Mac).</p>
+                <ol>
+                    <li>Firefox may have issues with YouTube playback.</li>
+                    <li>iOS devices have restrictions that may affect audio playback.</li>
+                </ol>
+                <button id="continue-anyway-btn">Continue Anyway</button>
+            </div>
+        `;
+        
+        document.body.appendChild(browserPopup);
+        
+        document.getElementById('continue-anyway-btn').addEventListener('click', () => {
+            browserPopup.remove();
+        });
+    }
+}
+
+// Check for browser compatibility on load
+window.addEventListener('load', checkBrowserCompatibility);
+
+// Handle YouTube API errors
+window.addEventListener('error', function(e) {
+    if (e.message.includes('YouTube') || e.filename.includes('youtube')) {
+        showNotification('YouTube API error. Please try refreshing the page.');
+    }
 });
