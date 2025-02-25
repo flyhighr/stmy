@@ -44,8 +44,33 @@ function loadSavedTheme() {
     }
 }
 
-// Mobile menu handling
-// Replace your existing setupMobileMenu function with this improved version
+function openPlaylistWithFullscreen() {
+    const welcomeScreen = document.querySelector('.welcome-screen');
+    const container = document.querySelector('.container');
+    
+    // Try to enter fullscreen
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log("Fullscreen request failed: ", err);
+            // Continue even if fullscreen fails
+        });
+    } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+    } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+    }
+    
+    // Transition to playlist view
+    welcomeScreen.style.opacity = '0';
+    container.style.display = 'flex';
+    
+    setTimeout(() => {
+        welcomeScreen.style.display = 'none';
+        container.style.opacity = '1';
+    }, 500);
+}
+
+// Update the mobile menu handling
 function setupMobileMenu() {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
@@ -58,30 +83,32 @@ function setupMobileMenu() {
     const newCloseMenuBtn = closeMobileMenuBtn.cloneNode(true);
     closeMobileMenuBtn.parentNode.replaceChild(newCloseMenuBtn, closeMobileMenuBtn);
     
-    // Add multiple event types for better responsiveness
-    newMobileMenuBtn.addEventListener('click', openMenu);
-    newMobileMenuBtn.addEventListener('touchend', openMenu);
-    
-    newCloseMenuBtn.addEventListener('click', closeMenu);
-    newCloseMenuBtn.addEventListener('touchend', closeMenu);
-    
-    // Event handler functions
-    function openMenu(e) {
+    // Toggle menu when clicking the three dots
+    newMobileMenuBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation(); // Prevent event bubbling
-        mobileMenuPanel.classList.add('active');
-        isMobileMenuOpen = true;
+        e.stopPropagation();
+        
+        if (isMobileMenuOpen) {
+            // Close menu if already open
+            mobileMenuPanel.classList.remove('active');
+            isMobileMenuOpen = false;
+        } else {
+            // Open menu if closed
+            mobileMenuPanel.classList.add('active');
+            isMobileMenuOpen = true;
+        }
         
         // Add visual feedback
         this.classList.add('button-active');
         setTimeout(() => {
             this.classList.remove('button-active');
         }, 200);
-    }
+    });
     
-    function closeMenu(e) {
+    // Close button inside menu still works as before
+    newCloseMenuBtn.addEventListener('click', function(e) {
         e.preventDefault();
-        e.stopPropagation(); // Prevent event bubbling
+        e.stopPropagation();
         mobileMenuPanel.classList.remove('active');
         isMobileMenuOpen = false;
         
@@ -90,7 +117,7 @@ function setupMobileMenu() {
         setTimeout(() => {
             this.classList.remove('button-active');
         }, 200);
-    }
+    });
     
     // Setup mobile controls with improved responsiveness
     const mobileControls = [
@@ -127,20 +154,6 @@ function setupMobileMenu() {
                     this.classList.remove('button-active');
                 }, 200);
             });
-            
-            // Add touchend for better mobile response
-            newElement.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                control.action();
-                updateMobileMenuButtons();
-                
-                // Add visual feedback
-                this.classList.add('button-active');
-                setTimeout(() => {
-                    this.classList.remove('button-active');
-                }, 200);
-            });
         }
     });
     
@@ -154,18 +167,8 @@ function setupMobileMenu() {
         });
     }
     
-    // Close when clicking outside - improve this to be more responsive
+    // Close when clicking outside
     document.addEventListener('click', (e) => {
-        if (isMobileMenuOpen && 
-            !mobileMenuPanel.contains(e.target) && 
-            !newMobileMenuBtn.contains(e.target)) {
-            mobileMenuPanel.classList.remove('active');
-            isMobileMenuOpen = false;
-        }
-    });
-    
-    // Add touchend listener for better mobile response
-    document.addEventListener('touchend', (e) => {
         if (isMobileMenuOpen && 
             !mobileMenuPanel.contains(e.target) && 
             !newMobileMenuBtn.contains(e.target)) {
@@ -1137,13 +1140,26 @@ function setupEventListeners() {
         });
     });
     
-    // Welcome screen open button
+    // Welcome screen open button - UPDATED to try fullscreen
     const openPlaylistBtn = document.querySelector('.open-playlist-btn');
     const welcomeScreen = document.querySelector('.welcome-screen');
     const container = document.querySelector('.container');
     
     if (openPlaylistBtn && welcomeScreen && container) {
         openPlaylistBtn.addEventListener('click', () => {
+            // Try to enter fullscreen
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("Fullscreen request failed: ", err);
+                    // Continue even if fullscreen fails
+                });
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+            
+            // Transition to playlist view
             welcomeScreen.style.opacity = '0';
             container.style.display = 'flex';
             
